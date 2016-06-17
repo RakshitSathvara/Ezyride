@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <include
@@ -21,19 +21,35 @@
             android:orientation="vertical">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/UserImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:src="@drawable/profile" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Rakshit Sathvara"
-                android:textColor="#000000"
-                android:textSize="18sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/UserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:text="Rakshit Sathvara"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+
+                <ImageView
+                    android:id="@+id/edit_username"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_action_edit" />
+            </LinearLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -42,7 +58,7 @@
                 android:layout_marginTop="30dp">
 
                 <EditText
-                    android:id="@+id/email"
+                    android:id="@+id/Useremail"
                     style="@style/EditTextColor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -61,7 +77,7 @@
                 android:layout_marginTop="20dp">
 
                 <EditText
-                    android:id="@+id/mobile"
+                    android:id="@+id/Usermobile"
                     style="@style/EditTextColor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -145,6 +161,7 @@
                     android:textSize="14sp" />
 
                 <ImageView
+                    android:id="@+id/facebook_verify"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -181,6 +198,7 @@
                     android:textSize="14sp" />
 
                 <ImageView
+                    android:id="@+id/Mail_verify"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
@@ -218,6 +236,7 @@
                     android:textSize="14sp" />
 
                 <ImageView
+                    android:id="@+id/panCard_verify"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -225,6 +244,7 @@
                     android:src="@drawable/ic_action_close" />
 
                 <ImageView
+                    android:id="@+id/editPanCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center|right"
