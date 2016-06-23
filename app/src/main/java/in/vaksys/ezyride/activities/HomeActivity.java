@@ -1,7 +1,9 @@
 package in.vaksys.ezyride.activities;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -46,6 +48,7 @@ import butterknife.ButterKnife;
 import in.vaksys.ezyride.R;
 import in.vaksys.ezyride.fragments.BlankFragment;
 import in.vaksys.ezyride.fragments.NavigationDrawerFragment;
+import in.vaksys.ezyride.fragments.RegisterDialog;
 import in.vaksys.ezyride.utils.MyApplication;
 import in.vaksys.ezyride.utils.NavigationDrawerCallbacks;
 
@@ -78,6 +81,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
     @Bind(R.id.btnLinkToRegisterScreen)
     Button btnLinkToRegisterScreen;
+
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -88,6 +92,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
     int tempflag = 0;
     Dialog dialog;
 
+    // TODO: 23-06-2016 Google Place API for Release version is left
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +101,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
         AppEventsLogger.activateApp(MyApplication.getInstance());
         setContentView(R.layout.activity_home);
 //        ButterKnife.bind(this);
-            forFacebook();
+        forFacebook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
@@ -161,15 +167,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
                                                 Log.d("LoginActivity", fname + femail + fgender + fbirthday);
 
-                                                /*SharedPreferences sharedPreferences = getSharedPreferences("ProfileDetail", Context.MODE_PRIVATE);
+                                                SharedPreferences sharedPreferences = getSharedPreferences("ProfileDetail", Context.MODE_PRIVATE);
                                                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                editor.putString("FirstName", fname);
+                                                editor.putString("Name", fname);
                                                 editor.putString("Emaiid", femail);
                                                 editor.putString("Birthdate", fbirthday);
+                                                editor.putString("Profilepic", profile_pic.toString());
                                                 editor.putInt("entryTime", 1);
                                                 editor.putBoolean("loggin", true);
-                                                editor.apply();*/
-//                                                startActivity(new Intent(SignupActivity.this, EditProfileActivity.class));
+                                                editor.apply();
+
+//                                                startActivity(new Intent(HomeActivity.this, EditProfileActivity.class));
                                             } catch (MalformedURLException e) {
                                                 e.printStackTrace();
                                             }
@@ -292,10 +300,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
                 startActivity(details);
                 break;
             case 7:
+
                 Intent map = new Intent(HomeActivity.this, SearchLocationActivity.class);
                 startActivity(map);
                 break;
-
+            case 8:
+                android.app.FragmentManager fm11 = getFragmentManager();
+                RegisterDialog registerDialog = new RegisterDialog();
+                registerDialog.show(fm11, "tag");
+                break;
             default:
                 break;
         }
@@ -325,6 +338,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
         }
     }
+
     @Override
     public void onBackPressed() {
         if (mNavigationDrawerFragment.isDrawerOpen())

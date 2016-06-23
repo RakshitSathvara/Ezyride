@@ -9,16 +9,16 @@
     android:padding="10dp">
 
     <EditText
-        android:id="@+id/et_corporate_email"
+        android:id="@+id/et_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="15"
-        android:hint="Corporate Mail"
-        android:inputType="textEmailAddress"
+        android:hint="Name"
+        android:inputType="textCapWords"
         android:singleLine="true" />
 
     <Button
-        android:id="@+id/Email_Confirm_btn"
+        android:id="@+id/name_Confirm_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"

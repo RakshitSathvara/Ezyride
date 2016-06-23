@@ -104,7 +104,7 @@
 
 
                     <EditText
-                        android:id="@+id/et_departDate"
+                        android:id="@+id/et_birthDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawableLeft="@drawable/ic_action_calendar"
@@ -302,6 +302,7 @@
             </LinearLayout>
 
             <Button
+                android:id="@+id/SaveBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"

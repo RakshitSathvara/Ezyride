@@ -3,7 +3,9 @@ package in.vaksys.ezyride.activities;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -12,13 +14,18 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,6 +33,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +66,8 @@ public class EditProfileActivity extends AppCompatActivity {
     EditText Useremail;
     @Bind(R.id.Usermobile)
     EditText Usermobile;
-    @Bind(R.id.et_departDate)
-    EditText etDepartDate;
+    @Bind(R.id.et_birthDate)
+    EditText etBirthDate;
     @Bind(R.id.genderSpinner)
     Spinner genderSpinner;
     @Bind(R.id.facebook_verify)
@@ -73,6 +82,8 @@ public class EditProfileActivity extends AppCompatActivity {
     ImageView editPanCard;
     @Bind(R.id.carSpinner)
     Spinner carSpinner;
+    @Bind(R.id.SaveBtn)
+    Button SaveBtn;
 
     public static final String TAG = "DATE";
 
@@ -100,6 +111,13 @@ public class EditProfileActivity extends AppCompatActivity {
     // private ExpandableView topExpandableView;
     private Spinner mGenderSpinner, mSelectCar;
     private String GenderSpinnItem, carSpinnItem;
+    private boolean FbStatus;
+    private boolean CorporateMailStatus;
+    private boolean PanCardStatus;
+
+    private String Emailid, PicUrl, mUserName, oldNumber, birthdate;
+    private String newNumber;
+    private int genderPosi, carDetailPosi;
     //private ExpandableView middleExpandableView;
 
     @Override
@@ -154,7 +172,9 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });*/
 
-        etDepartDate.setOnTouchListener(new View.OnTouchListener() {
+        setPreviosData();
+
+        etBirthDate.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 SelectfromDate();
@@ -181,6 +201,42 @@ public class EditProfileActivity extends AppCompatActivity {
         });*/
     }
 
+    private void setPreviosData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("ProfileDetail", Context.MODE_PRIVATE);
+        Emailid = sharedPreferences.getString("Emaiid", "");
+        mUserName = sharedPreferences.getString("Name", "");
+        birthdate = sharedPreferences.getString("Birthdate", "");
+        oldNumber = sharedPreferences.getString("Mobile", "");
+
+        FbStatus = sharedPreferences.getBoolean("facebookstatus", false);
+        CorporateMailStatus = sharedPreferences.getBoolean("corporatemailstatus", false);
+        PanCardStatus = sharedPreferences.getBoolean("pancardstatus", false);
+
+        genderPosi = sharedPreferences.getInt("genderPosition", 0);
+        carDetailPosi = sharedPreferences.getInt("carDetailPosition", 0);
+
+        PicUrl = sharedPreferences.getString("Profilepic", "");
+
+        Useremail.setText(Emailid);
+        UserName.setText(mUserName);
+        etBirthDate.setText(birthdate);
+        Usermobile.setText(oldNumber);
+
+        genderSpinner.setSelection(genderPosi);
+        carSpinner.setSelection(carDetailPosi);
+
+        Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        Glide.with(this)
+                .load(PicUrl)
+                .centerCrop()
+                .placeholder(R.drawable.profile)
+                .error(R.drawable.profile)
+                .dontAnimate()
+                .animate(anim)
+                .into(UserImage);
+
+    }
+
     private void setSpinners() {
         Genderstrings.add("Select One");
         Genderstrings.add("Male");
@@ -190,6 +246,7 @@ public class EditProfileActivity extends AppCompatActivity {
         mGenderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                genderPosi = position;
                 TextView gendspi = (TextView) view;
                 GenderSpinnItem = gendspi.getText().toString();
 
@@ -212,6 +269,7 @@ public class EditProfileActivity extends AppCompatActivity {
         mSelectCar.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                carDetailPosi = position;
                 TextView gendspi = (TextView) view;
                 carSpinnItem = gendspi.getText().toString();
                 if (position == 3) {
@@ -284,7 +342,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
                 SelectedDate = dateFormatter.format(newDate.getTime());
-                etDepartDate.setText(SelectedDate);
+                etBirthDate.setText(SelectedDate);
             }
 
         }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
@@ -455,13 +513,36 @@ public class EditProfileActivity extends AppCompatActivity {
 
     }
 
-    @OnClick({R.id.UserImage, R.id.edit_username, R.id.facebook_verify, R.id.Mail_verify, R.id.composeMail, R.id.panCard_verify, R.id.editPanCard})
+    @OnClick({R.id.UserImage, R.id.edit_username, R.id.facebook_verify, R.id.Mail_verify, R.id.composeMail,
+            R.id.panCard_verify, R.id.editPanCard, R.id.SaveBtn})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.UserImage:
                 openBottomSheet();
                 break;
             case R.id.edit_username:
+                final Dialog dialog1 = new Dialog(EditProfileActivity.this);
+                dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog1.setContentView(R.layout.change_name_dialog);
+
+                final EditText name = (EditText) dialog1.findViewById(R.id.et_name);
+                Button NameconfrmBtn = (Button) dialog1.findViewById(R.id.name_Confirm_btn);
+
+                NameconfrmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String MName = name.getText().toString();
+                        if (!MName.isEmpty()) {
+                            UserName.setText(MName);
+                            dialog1.dismiss();
+                        } else {
+                            Toast.makeText(EditProfileActivity.this, "Please Enter Name", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                //dialog.setTitle("Title...");
+                dialog1.show();
                 break;
             case R.id.facebook_verify:
                 break;
@@ -471,6 +552,18 @@ public class EditProfileActivity extends AppCompatActivity {
                 final Dialog dialog = new Dialog(EditProfileActivity.this);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setContentView(R.layout.compose_mail);
+
+                final EditText CMailid = (EditText) dialog.findViewById(R.id.et_corporate_email);
+                Button confrmBtn = (Button) dialog.findViewById(R.id.Email_Confirm_btn);
+
+                confrmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String email = CMailid.getText().toString();
+
+                    }
+                });
+
                 //dialog.setTitle("Title...");
                 dialog.show();
                 break;
@@ -478,6 +571,189 @@ public class EditProfileActivity extends AppCompatActivity {
                 break;
             case R.id.editPanCard:
                 break;
+            case R.id.SaveBtn:
+                validateData();
+                break;
+        }
+    }
+
+    private void validateData() {
+        if (!validateFirstName()) {
+            return;
+        }
+        if (!validateBirthDate()) {
+            return;
+        }
+        if (!validateEmail()) {
+            return;
+        }
+        if (!validateNumber()) {
+            return;
+        }
+        getdata();
+    }
+
+    private void getdata() {
+        mUserName = UserName.getText().toString();
+        Emailid = Useremail.getText().toString();
+        newNumber = Usermobile.getText().toString();
+        birthdate = etBirthDate.getText().toString();
+
+        sendData(mUserName, Emailid, newNumber, oldNumber, birthdate, PicUrl, genderPosi, carDetailPosi, FbStatus, CorporateMailStatus, PanCardStatus);
+    }
+
+    private void sendData(String mUserName, String emailid, String newNumber, String oldNumber, String birthdate, String picUrl,
+                          int genderPosi, int carDetailPosi, boolean fbStatus, boolean corporateMailStatus, boolean panCardStatus) {
+
+        if (!newNumber.equals(oldNumber)) {
+//            requestForSMS(mUserName, emailid, newNumber);
+
+        }
+
+    }
+
+
+
+//    private void requestForSMS(final String name, final String email, final String mobile) {
+//
+//        ApiInterface apiService =
+//                ApiClient.getClient().create(ApiInterface.class);
+//
+//
+//
+//        StringRequest strReq = new StringRequest(Request.Method.POST,
+//                AppConfig.URL_REQUEST_SMS, new Response.Listener<String>() {
+//
+//            @Override
+//            public void onResponse(String response) {
+//                Log.d(TAG, response.toString());
+//
+//                try {
+//                    JSONObject responseObj = new JSONObject(response);
+//
+//                    // Parsing json object response
+//                    // response will be a json object
+//                    boolean error = responseObj.getBoolean("error");
+//                    String message = responseObj.getString("message");
+//
+//                    // checking for error, if not error SMS is initiated
+//                    // device should receive it shortly
+//                    if (!error) {
+//                        // boolean flag saying device is waiting for sms
+////                        pref.setIsWaitingForSms(true);
+//
+//                        // moving the screen to next pager item i.e otp screen
+////                        viewPager.setCurrentItem(1);
+////                        txtEditMobile.setText(pref.getMobileNumber());
+////                        layoutEditMobile.setVisibility(View.VISIBLE);
+//                        // TODO: 18-06-2016 here start new otp activity and make sure that you have to create new resend otp API
+//                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+//
+//                    } else {
+//                        Toast.makeText(getApplicationContext(),
+//                                "Error: " + message,
+//                                Toast.LENGTH_LONG).show();
+//                    }
+//
+//                    // hiding the progress bar
+//                    progressBar.setVisibility(View.GONE);
+//
+//                } catch (JSONException e) {
+//                    Toast.makeText(getApplicationContext(),
+//                            "Error: " + e.getMessage(),
+//                            Toast.LENGTH_LONG).show();
+//
+//                    progressBar.setVisibility(View.GONE);
+//                }
+//
+//            }
+//        }, new Response.ErrorListener() {
+//
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.e(TAG, "Error: " + error.getMessage());
+//                Toast.makeText(getApplicationContext(),
+//                        "Errorrrrrrrrrrrrr : " +error.getMessage(), Toast.LENGTH_SHORT).show();
+//                progressBar.setVisibility(View.GONE);
+//            }
+//        }) {
+//
+//            /**
+//             * Passing user parameters to our server
+//             * @return
+//             */
+//            @Override
+//            protected Map<String, String> getParams() {
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put("name", name);
+//                params.put("email", email);
+//                params.put("mobile", mobile);
+//
+//                Log.e(TAG, "Posting params: " + params.toString());
+//
+//                return params;
+//            }
+//
+//        };
+//
+//        // Adding request to request queue
+//        MyApplication.getInstance().addToRequestQueue(strReq);
+//    }
+
+    private boolean validateFirstName() {
+        if (UserName.getText().toString().trim().isEmpty()) {
+            UserName.setError(getString(R.string.err_msg_first_name));
+            requestFocus(UserName);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean validateBirthDate() {
+        if (etBirthDate.getText().toString().trim().isEmpty()) {
+            etBirthDate.setError(getString(R.string.err_msg_birth_date));
+            requestFocus(etBirthDate);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean validateEmail() {
+        String email = Useremail.getText().toString().trim();
+
+        if (email.isEmpty() || !isValidEmail(email)) {
+            Useremail.setError(getString(R.string.err_msg_email));
+            requestFocus(Useremail);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean validateNumber() {
+        if (Usermobile.getText().toString().trim().isEmpty()) {
+            Usermobile.setError(getString(R.string.err_msg_number));
+            requestFocus(Usermobile);
+            return false;
+        }
+        if (Usermobile.length() != 10) {
+            Usermobile.setError(getString(R.string.err_msg_valid_number));
+            requestFocus(Usermobile);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
 }
