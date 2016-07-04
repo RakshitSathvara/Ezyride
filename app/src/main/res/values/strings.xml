@@ -19,6 +19,7 @@
     <string name="how_it_works">How it works</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="messages">Messages</string>
+    <string name="my_cars">My Cars</string>
     <string name="home">Home</string>
     <string name="from">From</string>
     <string name="to">To</string>
@@ -58,19 +59,16 @@
     <string name="err_msg_valid_number">Phone Number Must Contain 10 Digits</string>
     <string name="err_msg_password">Provide Password</string>
     <string name="err_valid_password">Password Must Contain 6 Characters</string>
-    <string name="place_details">
-    <![CDATA[
-        <b>%1$s</b>
-        <br/>
-        <i>Place Id: %2$s</i>
-        <br/>
-        Address: %3$s
-        <br/>
-        Phone: %4$s
-        <br/>
-        Website: %5$s
-    ]]>
-    </string>
+    <string name="err_msg_price">Provide Rate Per Seat</string>
+    <string name="err_msg_seat">Provide Available Seats</string>
+    <string name="err_msg_date">Provide Date of Ride</string>
+    <string name="err_msg_time">Provide Time of Ride</string>
+    <string name="err_msg_car_spinner">Provide Car</string>
+    <string name="err_msg_car_number">Provide Car Number</string>
+    <string name="error_view_add_car">Add Car Now</string>
+    <string name="error_title_ops">Oops …</string>
+    <string name="error_subtitle_no_car_found">Seems like you haven\'t any Car yet.</string>
+    <string name="error_subtitle_no_connection">Seems Like you don\'t have an internet Connection</string>
 
 
 </resources>

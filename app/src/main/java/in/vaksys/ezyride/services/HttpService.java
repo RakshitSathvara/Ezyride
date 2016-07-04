@@ -2,17 +2,16 @@ package in.vaksys.ezyride.services;
 
 import android.app.Activity;
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.widget.Toast;
 
 import in.vaksys.ezyride.activities.HomeActivity;
 import in.vaksys.ezyride.extras.Utils;
+import in.vaksys.ezyride.responces.ApiInterface;
 import in.vaksys.ezyride.responces.OTPResponce;
 import in.vaksys.ezyride.utils.ApiClient;
-import in.vaksys.ezyride.utils.ApiInterface;
-import in.vaksys.ezyride.utils.MyApplication;
+import in.vaksys.ezyride.utils.AppConfig;
+import in.vaksys.ezyride.utils.PreferenceHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,6 +24,7 @@ public class HttpService extends IntentService {
     private static String TAG = HttpService.class.getSimpleName();
     ApiInterface apiService;
     private String APIkey;
+    PreferenceHelper helper;
 
     public HttpService() {
         super(HttpService.class.getSimpleName());
@@ -41,33 +41,34 @@ public class HttpService extends IntentService {
     /**
      * Posting the OTP to server and activating the user
      *
-     * @param otp otp received in the SMS
+     * @param otp VERIFY_OTP_RESPONCE_CALL received in the SMS
      */
     private void verifyOtp(final String otp) {
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
-        SharedPreferences sharedPreferences = MyApplication.getInstance().getSharedPreferences("UserDetails", Context.MODE_PRIVATE);
-        APIkey = sharedPreferences.getString("APIkey", "");
+        helper = new PreferenceHelper(getApplicationContext(), AppConfig.PREF_USER_FILE_NAME);
 
-        Call<OTPResponce> call = apiService.otp(APIkey, otp);
+        APIkey = helper.LoadStringPref(AppConfig.PREF_USER_API_KEY, "");
+
+        Call<OTPResponce> call = apiService.VERIFY_OTP_RESPONCE_CALL(APIkey, otp);
 
         call.enqueue(new Callback<OTPResponce>() {
             @Override
             public void onResponse(Call<OTPResponce> call, Response<OTPResponce> response) {
-                SharedPreferences sharedPreferences = MyApplication.getInstance().getSharedPreferences("UserDetails", Context.MODE_PRIVATE);
+
                 OTPResponce response1 = response.body();
 
                 if (response.code() == 200) {
                     if (!response1.isError()) {
-                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                        edit.putBoolean("OTPstatus", true);
-                        edit.putBoolean("RegStatus", true);
-                        edit.putString("Fname", response1.getFname());
-                        edit.putString("Lname", response1.getLname());
-                        edit.putString("Email", response1.getEmail());
-                        edit.putString("Bdate", response1.getDob());
-                        edit.putInt("Gender", response1.getGender());
-                        edit.apply();
+                        helper.initPref();
+                        helper.SaveBooleanPref(AppConfig.PREF_USER_OTP_STATUS, true);
+                        helper.SaveBooleanPref(AppConfig.PREF_USER_REG_STATUS, true);
+                        helper.SaveStringPref(AppConfig.PREF_USER_NAME, response1.getFname());
+//                        helper.SaveStringPref("Lname", response1.getLname());
+                        helper.SaveStringPref(AppConfig.PREF_USER_MAIL_ID, response1.getEmail());
+                        helper.SaveStringPref(AppConfig.PREF_USER_BIRTHDATE, response1.getDob());
+                        helper.SaveIntPref(AppConfig.PREF_USER_GENDER_POSITION, response1.getGender());
+                        helper.ApplyPref();
 
                         Toast.makeText(HttpService.this, response1.getMessage(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(HttpService.this, HomeActivity.class);

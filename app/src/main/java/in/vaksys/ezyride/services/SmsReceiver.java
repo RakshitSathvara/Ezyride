@@ -42,7 +42,7 @@ public class SmsReceiver extends BroadcastReceiver {
                     Log.e(TAG, "OTP received: " + verificationCode);
 
                     Intent hhtpIntent = new Intent(context, HttpService.class);
-                    hhtpIntent.putExtra("otp", verificationCode);
+                    hhtpIntent.putExtra("VERIFY_OTP_RESPONCE_CALL", verificationCode);
                     context.startService(hhtpIntent);
                 }
             }

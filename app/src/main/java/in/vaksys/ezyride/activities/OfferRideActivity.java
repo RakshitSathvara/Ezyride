@@ -2,24 +2,31 @@ package in.vaksys.ezyride.activities;
 
 import android.Manifest;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.Spanned;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,20 +54,29 @@ import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import in.vaksys.ezyride.R;
-import in.vaksys.ezyride.adapters.ExpandableView;
-import in.vaksys.ezyride.adapters.ExpandedListItemView;
+import in.vaksys.ezyride.adapters.CarsSpinnerAdapter;
+import in.vaksys.ezyride.extras.ProgresDialog;
 import in.vaksys.ezyride.extras.Utils;
+import in.vaksys.ezyride.responces.ApiInterface;
+import in.vaksys.ezyride.responces.CarResponse;
+import in.vaksys.ezyride.responces.OfferRideResponse;
+import in.vaksys.ezyride.utils.ApiClient;
+import in.vaksys.ezyride.MyApplication;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OfferRideActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    public static final String TAG = "DATE";
+    private static final String TAG = "OfferRideActivity";
     private static final int ACCESS_FINE_LOCATION = 1;
     FragmentManager mFragmentManager;
     DatePickerDialog datePickerDialog;
@@ -77,10 +93,6 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
     TextView dateSupport;
     @Bind(R.id.timeSupport)
     TextView timeSupport;
-    @Bind(R.id.activity_main_top_expandable_view)
-    ExpandableView activityMainTopExpandableView;
-    @Bind(R.id.activity_main_middle_expandable_view)
-    ExpandableView activityMainMiddleExpandableView;
     @Bind(R.id.OfferNowBtn)
     Button OfferNowBtn;
     @Bind(R.id.FromMainName)
@@ -91,6 +103,18 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
     TextView ToMainName;
     @Bind(R.id.ToSubName)
     TextView ToSubName;
+    @Bind(R.id.spinner_car_list)
+    Spinner spinnerCarList;
+    @Bind(R.id.et_Price)
+    EditText etPrice;
+    @Bind(R.id.et_price_input)
+    TextInputLayout etPriceInput;
+    @Bind(R.id.et_seat)
+    EditText etSeat;
+    @Bind(R.id.et_seat_input)
+    TextInputLayout etSeatInput;
+    @Bind(R.id.ladies_status)
+    CheckBox ladiesStatus;
 
     private GoogleApiClient mGoogleApiClient;
     Utils utils;
@@ -105,15 +129,33 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
     private LocationRequest mLocationRequest;
 
     // Location updates intervals in sec
-    private static int UPDATE_INTERVAL = 60000; // 10 sec
-    private static int FATEST_INTERVAL = 30000; // 5 sec
-    private static int DISPLACEMENT = 10; // 10 meters
+    private static int UPDATE_INTERVAL = 100000; // 100 sec
+    private static int FATEST_INTERVAL = 60000; // 60 sec
+//    private static int DISPLACEMENT = 10; // 10 meters
 
     private double FromLat;
     private double FromLng;
     private double ToLat;
     private double ToLng;
+    private int carListPosi;
+    private String carSpinnItem;
+    private int mLadiesStatus = 0;
+    private String mRideDate;
+    private String mRideTime;
+    private String mPrice;
+    private String mSeats;
 
+    ApiInterface apiService;
+    CarResponse carResponse;
+
+    private String APIkey;
+    private ProgresDialog pDialog;
+    private String ActualCarId;
+    private int ForLastPosi;
+    private String mFromMain;
+    private String mFromSub;
+    private String mToMain;
+    private String mToSub;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,17 +164,22 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-
         setTitle("Offer Ride");
 
         utils = new Utils(this);
+        pDialog = new ProgresDialog(this);
+        pDialog.createDialog(false);
+
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        SharedPreferences sharedPreferences = MyApplication.getInstance().getSharedPreferences("UserDetails", Context.MODE_PRIVATE);
+        APIkey = sharedPreferences.getString("APIkey", "");
 
-        createTopExpandableView();
-        createMiddleExpandableView();
+        apiService = ApiClient.getClient().create(ApiInterface.class);
+
+        setCarSpinners();
 
         mFragmentManager = getFragmentManager();
 
@@ -148,6 +195,21 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
             @Override
             public void onClick(View v) {
                 timePickerDialog.show(mFragmentManager, "Time");
+            }
+        });
+
+        etPrice.addTextChangedListener(new MyTextWatcher(etPrice));
+        etSeat.addTextChangedListener(new MyTextWatcher(etSeat));
+
+        ladiesStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                Toast.makeText(OfferRideActivity.this, "" + b, Toast.LENGTH_SHORT).show();
+                if (b) {
+                    mLadiesStatus = 1;
+                } else {
+                    mLadiesStatus = 0;
+                }
             }
         });
 
@@ -204,7 +266,7 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
                 LatLng FromLatLng = place.getLatLng();
 
                 FromLat = FromLatLng.latitude;
-                FromLng = FromLatLng.latitude;
+                FromLng = FromLatLng.longitude;
 
                 /*String placeDetailsStr = place.getName() + "\n"
                         + place.getId() + "\n"
@@ -225,7 +287,7 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
                 }*/
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
-                Log.e(TAG, status.getStatusMessage());
+                Log.e(TAG, "hehh : " + status.getStatusMessage());
 
             } else if (resultCode == RESULT_CANCELED) {
                 // TODO: 23-06-2016 The user canceled the operation.
@@ -239,11 +301,13 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
                 LatLng FromLatLng = place.getLatLng();
 
                 ToLat = FromLatLng.latitude;
-                ToLng = FromLatLng.latitude;
+                ToLng = FromLatLng.longitude;
+
+                utils.showLog(TAG, "tolat:" + ToLat + " tolng:" + ToLng);
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
-                Log.i(TAG, status.getStatusMessage());
+                Log.i(TAG, " here : " + status.getStatusMessage());
 
             } else if (resultCode == RESULT_CANCELED) {
                 // TODO: 23-06-2016 The user canceled the operation.
@@ -266,43 +330,64 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
         timeSupport.setText(time);
     }
 
-    public void addContentView(ExpandableView view, String stringList, boolean showCheckbox) {
+    private void setCarSpinners() {
 
-        ExpandedListItemView itemView = new ExpandedListItemView(this);
-        itemView.setText(stringList, showCheckbox);
-        view.addContentView(itemView);
+        pDialog.DialogMessage("Getting Car list ...");
+        pDialog.showDialog();
 
+        Call<CarResponse> call = apiService.GET_CAR_RESPONSE_CALL("b96c450cb827366525f4df7007a121d2");
+
+        call.enqueue(new Callback<CarResponse>() {
+            @Override
+            public void onResponse(Call<CarResponse> call, Response<CarResponse> response) {
+                pDialog.hideDialog();
+                if (response.code() == 200) {
+                    CarResponse response1 = response.body();
+//                    utils.showLog(TAG, response.raw().toString());
+
+                    if (!response.body().isError()) {
+//                        utils.showLog(TAG, String.valueOf(response.body().isError()));
+
+                        List<CarResponse.CarsEntity> aa = response.body().getCars();
+                        CarsSpinnerAdapter adapter = new CarsSpinnerAdapter(OfferRideActivity.this, aa);
+                        spinnerCarList.setAdapter(adapter);
+                        ForLastPosi = aa.size();
+                    } else {
+                        utils.showLog(TAG, response1.getMessage());
+                        Toast.makeText(OfferRideActivity.this, response1.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(OfferRideActivity.this, "Unexpected Error,Please Contact Customer Care.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CarResponse> call, Throwable t) {
+                pDialog.hideDialog();
+                utils.ShowError();
+                Log.e(TAG, "onFailure: Error");
+            }
+        });
+
+        spinnerCarList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                carListPosi = position;
+                ActualCarId = ((TextView) findViewById(R.id.rowid)).getText().toString();
+                carSpinnItem = ((TextView) findViewById(R.id.rowText)).getText().toString();
+                if (carListPosi == (ForLastPosi - 1)) {
+                    startActivity(new Intent(OfferRideActivity.this, CarDetailsActivity.class));
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(OfferRideActivity.this, "You have selected Nothing ..", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-
-    private void createTopExpandableView() {
-        String[] androidVersionNameList = getResources().getStringArray(R.array.android_version_names);
-
-        activityMainTopExpandableView.fillData(R.drawable.dot, getString(R.string.android_names), false);
-        addContentView(activityMainTopExpandableView, "Audi A7", true);
-        addContentView(activityMainTopExpandableView, "Haundai", true);
-        //activityMainTopExpandableView.addContentView(expandableViewLevel1);
-    }
-
-
-    private void createMiddleExpandableView() {
-        String[] androidVersionNameList = getResources().getStringArray(R.array.android_version_names);
-
-        activityMainMiddleExpandableView.fillData(R.drawable.dot, getString(R.string.android_codes), false);
-        //activityMainMiddleExpandableView.setVisibleLayoutHeight(getResources().getDimensionPixelSize(R.dimen.new_visible_height));
-        addContentView(activityMainMiddleExpandableView, "Audi A7", true);
-        addContentView(activityMainMiddleExpandableView, "Haundai", true);
-        //addContentView(activityMainMiddleExpandableView, androidVersionNameList, false);
-    }
-
-    private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
-                                              CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
-        Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-        return Html.fromHtml(res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-
-    }
 
     @Override
     protected void onStart() {
@@ -340,24 +425,33 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
                     ACCESS_FINE_LOCATION);
             return;
         }
-        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
-        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
-            @Override
-            public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+        try {
+            PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+            result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+                @Override
+                public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
 
-                PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
-//                String content = "";
-                if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName())) {
-                    FromMainName.setText(placeLikelihood.getPlace().getName());
-                    FromSubName.setText(placeLikelihood.getPlace().getAddress());
-//                    content = "Most likely place: " + placeLikelihood.getPlace().getName() + "\n" + placeLikelihood.getPlace().getAddress();
+                    PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
+                    //                String content = "";
+                    if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName())) {
+                        FromMainName.setText(placeLikelihood.getPlace().getName());
+                        FromSubName.setText(placeLikelihood.getPlace().getAddress());
+
+                        LatLng FromLatLng = placeLikelihood.getPlace().getLatLng();
+
+                        FromLat = FromLatLng.latitude;
+                        FromLng = FromLatLng.longitude;
+                        //                    content = "Most likely place: " + placeLikelihood.getPlace().getName() + "\n" + placeLikelihood.getPlace().getAddress();
+                    }
+                    //                if (placeLikelihood != null)
+                    //                    content += "Percent change of being there: " + (int) (placeLikelihood.getLikelihood() * 100) + "%";
+                    //                Log.e(TAG, "displayLocation: " + content);
+                    likelyPlaces.release();
                 }
-//                if (placeLikelihood != null)
-//                    content += "Percent change of being there: " + (int) (placeLikelihood.getLikelihood() * 100) + "%";
-//                Log.e(TAG, "displayLocation: " + content);
-                likelyPlaces.release();
-            }
-        });
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -379,7 +473,7 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FATEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
+//        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
     }
 
     /**
@@ -458,11 +552,11 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
     @Override
     public void onLocationChanged(Location location) {
 
-        Toast.makeText(getApplicationContext(), "Location changed!",
+        /*Toast.makeText(getApplicationContext(), "Location changed!",
                 Toast.LENGTH_SHORT).show();
 
         // Displaying the new location on UI
-        guessCurrentPlace();
+        guessCurrentPlace();*/
     }
 
     @OnClick({R.id.GetFromLocation, R.id.GetCurrentLocation, R.id.GetToLocation, R.id.OfferNowBtn})
@@ -478,8 +572,80 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
                 ChooseToLoc();
                 break;
             case R.id.OfferNowBtn:
+                ValidateData();
                 break;
         }
+    }
+
+    private void ValidateData() {
+        if (!validateDate()) {
+            return;
+        }
+        if (!validateTime()) {
+            return;
+        }
+        if (!validateCar()) {
+            return;
+        }
+        if (!validatePrice()) {
+            return;
+        }
+        if (!validateSeats()) {
+            return;
+        }
+        getData();
+    }
+
+    private void getData() {
+
+        mRideDate = dateSupport.getText().toString();
+        mRideTime = timeSupport.getText().toString();
+        mPrice = etPrice.getText().toString();
+        mSeats = etSeat.getText().toString();
+        mFromMain = FromMainName.getText().toString();
+        mFromSub = FromSubName.getText().toString();
+        mToMain = ToMainName.getText().toString();
+        mToSub = ToSubName.getText().toString();
+        SendData(ActualCarId, FromLat, ToLat, FromLng, ToLng, mFromMain, mFromSub, mToMain, mToSub, mRideDate, mRideTime, mPrice, mSeats, mLadiesStatus);
+    }
+
+    private void SendData(String actualCarId, double fromLat, double toLat, double fromLng, double toLng
+            , String fromMainName, String fromSubName, String toMainName, String toSubName
+            , String mRideDate, String mRideTime, String mPrice, String mSeats, int mLadiesStatus) {
+
+        pDialog.DialogMessage("Sending OTP request ...");
+        pDialog.showDialog();
+
+        Call<OfferRideResponse> call = apiService.OFFER_RIDE_RESPONSE_CALL("b96c450cb827366525f4df7007a121d2", Integer.parseInt(actualCarId), fromLat, toLat, fromLng, toLng
+                , fromMainName, fromSubName, toMainName, toSubName, mRideDate, mRideTime,
+                (Float.parseFloat(mPrice)), Integer.parseInt(mSeats), mLadiesStatus);
+
+        call.enqueue(new Callback<OfferRideResponse>() {
+            @Override
+            public void onResponse(Call<OfferRideResponse> call, Response<OfferRideResponse> response) {
+                pDialog.hideDialog();
+                if (response.code() == 200) {
+                    OfferRideResponse response1 = response.body();
+                    if (!response.body().isError()) {
+                        Toast.makeText(OfferRideActivity.this, response1.getMessage(), Toast.LENGTH_SHORT).show();
+                        utils.showLog(TAG, response1.getMessage());
+                    } else {
+                        utils.showLog(TAG, response1.getMessage());
+                        Toast.makeText(OfferRideActivity.this, response1.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(OfferRideActivity.this, "Unexpected Error,Please Contact Customer Care.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OfferRideResponse> call, Throwable t) {
+                pDialog.hideDialog();
+                utils.ShowError();
+                Log.e(TAG, "onFailure: Error");
+            }
+        });
+
     }
 
     private void ChooseFromLoc() {
@@ -498,7 +664,7 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
         } catch (GooglePlayServicesNotAvailableException e) {
             String message = "Google Play Services is not available: " +
                     GoogleApiAvailability.getInstance().getErrorString(e.errorCode);
-            Log.e(TAG, message);
+            Log.e(TAG, " ajsd : " + message);
             Toast.makeText(OfferRideActivity.this, message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -519,8 +685,87 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
         } catch (GooglePlayServicesNotAvailableException e) {
             String message = "Google Play Services is not available: " +
                     GoogleApiAvailability.getInstance().getErrorString(e.errorCode);
-            Log.e(TAG, message);
+            Log.e(TAG, "kjsadhkjas" + message);
             Toast.makeText(OfferRideActivity.this, message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+
+        private View view;
+
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void afterTextChanged(Editable editable) {
+            switch (view.getId()) {
+                case R.id.et_Price:
+                    validatePrice();
+                    break;
+                case R.id.et_seat:
+                    validateSeats();
+                    break;
+            }
+        }
+    }
+
+    private boolean validatePrice() {
+        if (etPrice.getText().toString().trim().isEmpty()) {
+            etPriceInput.setError(getString(R.string.err_msg_price));
+            requestFocus(etPrice);
+            return false;
+        } else {
+            etPriceInput.setErrorEnabled(false);
+        }
+        return true;
+    }
+
+    private boolean validateSeats() {
+        if (etSeat.getText().toString().trim().isEmpty()) {
+            etSeatInput.setError(getString(R.string.err_msg_seat));
+            requestFocus(etSeat);
+            return false;
+        } else {
+            etSeatInput.setErrorEnabled(false);
+        }
+        return true;
+    }
+
+    private boolean validateDate() {
+        if (dateSupport.getText().toString().trim().equalsIgnoreCase("Date")) {
+            Toast.makeText(OfferRideActivity.this, getString(R.string.err_msg_date), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateCar() {
+        if (carListPosi == 0) {
+            Toast.makeText(OfferRideActivity.this, getString(R.string.err_msg_car_spinner), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateTime() {
+        if (timeSupport.getText().toString().trim().equalsIgnoreCase("Time")) {
+            Toast.makeText(OfferRideActivity.this, getString(R.string.err_msg_time), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
 }

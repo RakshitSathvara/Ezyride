@@ -2,9 +2,7 @@ package in.vaksys.ezyride.fragments;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -34,10 +32,11 @@ import in.vaksys.ezyride.R;
 import in.vaksys.ezyride.activities.VerifyOtpActivity;
 import in.vaksys.ezyride.extras.ProgresDialog;
 import in.vaksys.ezyride.extras.Utils;
+import in.vaksys.ezyride.responces.ApiInterface;
 import in.vaksys.ezyride.responces.RegisterResponse;
 import in.vaksys.ezyride.utils.ApiClient;
-import in.vaksys.ezyride.utils.ApiInterface;
-import in.vaksys.ezyride.utils.MyApplication;
+import in.vaksys.ezyride.utils.AppConfig;
+import in.vaksys.ezyride.utils.PreferenceHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,8 +47,8 @@ import retrofit2.Response;
 public class RegisterDialog extends DialogFragment {
     @Bind(R.id.UserFname)
     EditText UserFname;
-    @Bind(R.id.UserLname)
-    EditText UserLname;
+    /*@Bind(R.id.UserLname)
+    EditText UserLname;*/
     @Bind(R.id.UseremailReg)
     EditText UseremailReg;
     @Bind(R.id.UsermobileReg)
@@ -74,6 +73,7 @@ public class RegisterDialog extends DialogFragment {
     ArrayList<String> Genderstrings = new ArrayList<>();
     ProgresDialog dialog;
     Utils utils;
+    PreferenceHelper helper;
 
     public RegisterDialog() {
 
@@ -88,6 +88,7 @@ public class RegisterDialog extends DialogFragment {
 
         dialog = new ProgresDialog(getActivity());
         utils = new Utils(getActivity());
+        helper = new PreferenceHelper(getActivity(), AppConfig.PREF_USER_FILE_NAME);
 
         getDialog().setCancelable(true);
         getDialog().setTitle("Register");
@@ -131,9 +132,6 @@ public class RegisterDialog extends DialogFragment {
         if (!validateFirstName()) {
             return;
         }
-        if (!validateLastName()) {
-            return;
-        }
         if (!validateBirthDate()) {
             return;
         }
@@ -174,15 +172,14 @@ public class RegisterDialog extends DialogFragment {
 
     private void getdata() {
         mFName = UserFname.getText().toString();
-        mLName = UserLname.getText().toString();
         Emailid = UseremailReg.getText().toString();
         newNumber = UsermobileReg.getText().toString();
         birthdate = etBirthDateReg.getText().toString();
 
-        sendData(mFName, mLName, Emailid, newNumber, birthdate, genderPosi);
+        sendData(mFName, Emailid, newNumber, birthdate, genderPosi);
     }
 
-    private void sendData(String mFName, String mLName, String emailid, final String newNumber, String birthdate, int genderPosi) {
+    private void sendData(String mFName, String emailid, final String newNumber, String birthdate, int genderPosi) {
 
         dialog.createDialog(false);
         dialog.DialogMessage("Registering User ...");
@@ -191,7 +188,7 @@ public class RegisterDialog extends DialogFragment {
         ApiInterface apiService =
                 ApiClient.getClient().create(ApiInterface.class);
 
-        Call<RegisterResponse> call = apiService.getRegister(mFName, mLName, newNumber, birthdate, String.valueOf(genderPosi), emailid);
+        Call<RegisterResponse> call = apiService.REGISTER_RESPONSE_CALL(mFName, newNumber, birthdate, String.valueOf(genderPosi), emailid);
         call.enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
@@ -199,24 +196,22 @@ public class RegisterDialog extends DialogFragment {
                 RegisterResponse response1 = response.body();
 //                Log.e(TAG, "onResponse: " + response.code());
                 if (response.code() == 200) {
-                    SharedPreferences sharedPreferences = MyApplication.getInstance().getSharedPreferences("UserDetails", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor edit = sharedPreferences.edit();
                     if (!response1.isError()) {
+                        helper.initPref();
                         if (response1.isStatus()) {                 // status = true ( complete user )
-                            edit.putString("mobile", newNumber);
-                            edit.putString("APIkey", response1.getApiKey());
-                            edit.putBoolean("OTPstatus", true);
-                            edit.apply();
+                            helper.SaveStringPref(AppConfig.PREF_USER_MOBILE, newNumber);
+                            helper.SaveStringPref(AppConfig.PREF_USER_API_KEY, response1.getApiKey());
+                            helper.SaveBooleanPref(AppConfig.PREF_USER_OTP_STATUS, true);
                             utils.showLog(TAG, response1.getMessage());
                             Toast.makeText(getActivity(), response1.getMessage(), Toast.LENGTH_SHORT).show();
-                        } else {                                    // status = false ( user registered but otp verification is left
-                            edit.putString("mobile", newNumber);
-                            edit.putString("APIkey", response1.getApiKey());
-                            edit.putBoolean("OTPstatus", false);
-                            edit.apply();
+                        } else {                                    // status = false ( user registered but VERIFY_OTP_RESPONCE_CALL verification is left
+                            helper.SaveStringPref(AppConfig.PREF_USER_MOBILE, newNumber);
+                            helper.SaveStringPref(AppConfig.PREF_USER_API_KEY, response1.getApiKey());
+                            helper.SaveBooleanPref(AppConfig.PREF_USER_OTP_STATUS, false);
                             utils.showLog(TAG, response1.getApiKey() + "  " + response1.getMessage());
                             Toast.makeText(getActivity(), response1.getMessage(), Toast.LENGTH_SHORT).show();
                         }
+                        helper.ApplyPref();
                         startActivity(new Intent(getActivity(), VerifyOtpActivity.class));
                         getDialog().dismiss();
                         getActivity().finish();
@@ -263,15 +258,6 @@ public class RegisterDialog extends DialogFragment {
         }
     }
 
-    private boolean validateLastName() {
-        if (UserLname.getText().toString().trim().isEmpty()) {
-            UserLname.setError(getString(R.string.err_msg_last_name));
-            requestFocus(UserLname);
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     private boolean validateBirthDate() {
         if (etBirthDateReg.getText().toString().trim().isEmpty()) {

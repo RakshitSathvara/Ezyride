@@ -17,6 +17,7 @@
         <item name="windowActionBar">false</item>
 
     </style>
+
     <style name="dialogStyle" parent="Theme.AppCompat.Dialog">
         <item name="android:background">#ccc</item>
     </style>
@@ -51,6 +52,7 @@
         <item name="colorControlActivated">#8BC34A</item>
         <item name="colorControlHighlight">#8BC34A</item>
     </style>
+
     <style name="Expand" parent="ExpandableView_TextView">
         <item name="android:maxHeight">40dp</item>
         <item name="android:height">20dp</item>
@@ -61,6 +63,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#CCC</item>
     </style>
+
     <style name="SwitchButtonStyle">
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
@@ -106,6 +109,11 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/mycolor</item>
         <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="myBtn" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@drawable/buttonshape</item>
+
     </style>
 
 </resources>

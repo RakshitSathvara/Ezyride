@@ -1,5 +1,7 @@
 package in.vaksys.ezyride.utils;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -14,9 +16,10 @@ public class ApiClient {
     private static Retrofit retrofit = null;
 
     public static OkHttpClient okHttpClient1 = new OkHttpClient().newBuilder()
-            .connectTimeout(120, TimeUnit.SECONDS)
-            .writeTimeout(120, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS)
+            .addNetworkInterceptor(new StethoInterceptor())
+            .connectTimeout(150, TimeUnit.SECONDS)
+            .writeTimeout(150, TimeUnit.SECONDS)
+            .readTimeout(150, TimeUnit.SECONDS)
             .build();
 
     public static Retrofit getClient() {

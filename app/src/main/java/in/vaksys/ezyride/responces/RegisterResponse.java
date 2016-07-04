@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by Harsh on 21-06-2016.
  */
-public class RegisterResponse {
+public class RegisterResponse extends CommonResponse {
 
     /**
      * error : false
@@ -14,22 +14,10 @@ public class RegisterResponse {
      * message : You are successfully registered, please verify your mobile number.
      */
 
-    @SerializedName("error")
-    private boolean error;
     @SerializedName("status")
     private boolean status;
     @SerializedName("apiKey")
     private String apiKey;
-    @SerializedName("message")
-    private String message;
-
-    public boolean isError() {
-        return error;
-    }
-
-    public void setError(boolean error) {
-        this.error = error;
-    }
 
     public boolean isStatus() {
         return status;
@@ -47,11 +35,4 @@ public class RegisterResponse {
         this.apiKey = apiKey;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

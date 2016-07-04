@@ -1,17 +1,15 @@
 package in.vaksys.ezyride.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -21,12 +19,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,9 +30,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.github.lzyzsd.circleprogress.ArcProgress;
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.enums.SnackbarType;
+import com.nispok.snackbar.listeners.ActionClickListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,9 +51,26 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.vaksys.ezyride.R;
+import in.vaksys.ezyride.extras.ProgresDialog;
+import in.vaksys.ezyride.extras.Utils;
+import in.vaksys.ezyride.responces.ApiInterface;
+import in.vaksys.ezyride.responces.CarRegisterResponse;
+import in.vaksys.ezyride.responces.ImageUploadResponse;
+import in.vaksys.ezyride.utils.ApiClient;
+import in.vaksys.ezyride.utils.AppConfig;
+import in.vaksys.ezyride.utils.ImageUploadHelper;
+import in.vaksys.ezyride.utils.PreferenceHelper;
+import in.vaksys.ezyride.utils.ProgressRequestBody;
+import in.vaksys.ezyride.utils.UploadImageCallBack;
+import pl.aprilapps.easyphotopicker.DefaultCallback;
+import pl.aprilapps.easyphotopicker.EasyImage;
+import pl.aprilapps.easyphotopicker.EasyImageConfig;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
-public class EditProfileActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity implements ProgressRequestBody.UploadCallbacks {
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -80,45 +98,47 @@ public class EditProfileActivity extends AppCompatActivity {
     ImageView panCardVerify;
     @Bind(R.id.editPanCard)
     ImageView editPanCard;
-    @Bind(R.id.carSpinner)
-    Spinner carSpinner;
+    /*    @Bind(R.id.carSpinner)
+        Spinner carSpinner;*/
     @Bind(R.id.SaveBtn)
     Button SaveBtn;
 
-    public static final String TAG = "DATE";
+    ArcProgress arcProgress;
 
+    private static final String IMAGE_DIRECTORY_NAME = "EzyRidePhotos";
+
+    private static final String TAG = "EditProfileActivity";
     private DatePickerDialog fromDatePickerDialog;
     ArrayList<String> Genderstrings = new ArrayList<>();
     ArrayList<String> carStrings = new ArrayList<>();
 
     private SimpleDateFormat dateFormatter;
     private String SelectedDate;
-    private static final String FRAG_TAG_TIME_PICKER = "timePickerDialogFragment";
 
-    public Uri fileUri;
-    private static final String IMAGE_DIRECTORY_NAME = "EzyRidePhotos";
-    public int PICK_IMAGE_REQUEST = 1;
-    private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    public static String timeStamp, myImageUrl;
-    Bitmap bitmap;
-    private Uri filePath;
-
-    //private ExpandableView middleExpandableView;
-
-    //    EditText etTime;
-    TimePickerDialog mTimePicker;
-    // private ExpandableView topExpandableView;
-    private Spinner mGenderSpinner, mSelectCar;
+    //    private Spinner mGenderSpinner, mSelectCar;
     private String GenderSpinnItem, carSpinnItem;
     private boolean FbStatus;
     private boolean CorporateMailStatus;
     private boolean PanCardStatus;
 
-    private String Emailid, PicUrl, mUserName, oldNumber, birthdate;
+    private String Emailid, ProfilePicaUrl, mUserName, oldNumber, birthdate;
     private String newNumber;
     private int genderPosi, carDetailPosi;
-    //private ExpandableView middleExpandableView;
+
+    private static final int REQUEST_CAMERA = 0;
+    private File files;
+
+    Utils utils;
+    Dialog confirm;
+
+    ApiInterface apiService;
+    private ProgresDialog pDialog;
+    Call<ImageUploadResponse> responseCall;
+    PreferenceHelper helper;
+    private boolean ImageType;
+    private String PanCardImageUrl;
+    Call<CarRegisterResponse> carRegisterResponseCall;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,52 +146,20 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
         ButterKnife.bind(this);
 
-        mGenderSpinner = (Spinner) findViewById(R.id.genderSpinner);
-        mSelectCar = (Spinner) findViewById(R.id.carSpinner);
+
+//        mGenderSpinner = (Spinner) findViewById(R.id.genderSpinner);
+//        mSelectCar = (Spinner) findViewById(R.id.carSpinner);
 
         setSupportActionBar(toolbar);
 
-        setTitle("Profile");
-        /*Calendar mcurrentTime = Calendar.getInstance();
-
-        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-        int minute = mcurrentTime.get(Calendar.MINUTE);
-        mTimePicker = new TimePickerDialog(EditProfileActivity.this, new TimePickerDialog.OnTimeSetListener() {
-
-            @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                if (timePicker.isShown()) {
-                    etTime.setText(selectedHour + ":" + selectedMinute);
-                }
-            }
-        }, hour, minute, true);//Yes 24 hour time*/
-        getSupportActionBar().setHomeButtonEnabled(true);
+        Init();
+        /*getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        //topExpandableView = (ExpandableView) findViewById(R.id.activity_main_top_expandable_view11111);
-        // middleExpandableView = (ExpandableView) findViewById(R.id.activity_main_top_expandable_view1);
-
-        //createTopExpandableView();
-        //createMiddleExpandableView();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
         setSpinners();
-        setCarSpinners();
-//        etTime = (EditText) findViewById(R.id.timeSupport);
-        setDateTimeField();
-//        etDepartDate.setInputType(InputType.TYPE_NULL);
-//        etTime.setInputType(InputType.TYPE_NULL);
-        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+//        setCarSpinners();
 
-
-       /* etDepartDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    datePickerDialog.show(mFragmentManager, "DepartDate");
-                }
-            }
-        });*/
-
+        ImageUploadDialog();
         setPreviosData();
 
         etBirthDate.setOnTouchListener(new View.OnTouchListener() {
@@ -182,57 +170,62 @@ public class EditProfileActivity extends AppCompatActivity {
             }
 
         });
-        /*etTime.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                selectTime();
-                return true;
-            }
+    }
 
-        });
-*/
-/*
-        etTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selectTime();
+    private void Init() {
+        setTitle("Profile");
+        files = new File("");
 
-            }
-        });*/
+        utils = new Utils(this);
+        apiService = ApiClient
+                .getClient()
+                .create(ApiInterface.class);
+        pDialog = new ProgresDialog(this);
+        pDialog.createDialog(false);
+        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        EasyImage.configuration(this)
+                .setImagesFolderName("Choose Car Image")
+                .setImagesFolderName(String.valueOf(new File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                        IMAGE_DIRECTORY_NAME)));
+        helper = new PreferenceHelper(this, AppConfig.PREF_USER_FILE_NAME);
+        helper.initPref();
+        helper.SaveBooleanPref(AppConfig.PREF_USER_IMG_CHANGE, false);
+        helper.ApplyPref();
     }
 
     private void setPreviosData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("ProfileDetail", Context.MODE_PRIVATE);
-        Emailid = sharedPreferences.getString("Emaiid", "");
-        mUserName = sharedPreferences.getString("Name", "");
-        birthdate = sharedPreferences.getString("Birthdate", "");
-        oldNumber = sharedPreferences.getString("Mobile", "");
+        Emailid = helper.LoadStringPref(AppConfig.PREF_USER_MAIL_ID, "");
+        mUserName = helper.LoadStringPref(AppConfig.PREF_USER_NAME, "");
+        birthdate = helper.LoadStringPref(AppConfig.PREF_USER_BIRTHDATE, "");
+        oldNumber = helper.LoadStringPref(AppConfig.PREF_USER_MOBILE, "");
 
-        FbStatus = sharedPreferences.getBoolean("facebookstatus", false);
-        CorporateMailStatus = sharedPreferences.getBoolean("corporatemailstatus", false);
-        PanCardStatus = sharedPreferences.getBoolean("pancardstatus", false);
+        FbStatus = helper.LoadBooleanPref("facebookstatus", false);
+        CorporateMailStatus = helper.LoadBooleanPref("corporatemailstatus", false);
+        PanCardStatus = helper.LoadBooleanPref("pancardstatus", false);
 
-        genderPosi = sharedPreferences.getInt("genderPosition", 0);
-        carDetailPosi = sharedPreferences.getInt("carDetailPosition", 0);
+        genderPosi = helper.LoadIntPref("genderPosition", 0);
+//        carDetailPosi = helper.LoadIntPref("carDetailPosition", 0);
 
-        PicUrl = sharedPreferences.getString("Profilepic", "");
-
+        ProfilePicaUrl = helper.LoadStringPref(AppConfig.PREF_USER_PROF_IMG_URL, "");
+        Log.e(TAG, "setPreviosData: " + ProfilePicaUrl);
         Useremail.setText(Emailid);
         UserName.setText(mUserName);
         etBirthDate.setText(birthdate);
         Usermobile.setText(oldNumber);
 
         genderSpinner.setSelection(genderPosi);
-        carSpinner.setSelection(carDetailPosi);
+//        carSpinner.setSelection(carDetailPosi);
 
-        Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+//        Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
         Glide.with(this)
-                .load(PicUrl)
+                .load(ProfilePicaUrl)
+                .crossFade()
                 .centerCrop()
                 .placeholder(R.drawable.profile)
                 .error(R.drawable.profile)
                 .dontAnimate()
-                .animate(anim)
+//                .animate(anim)
                 .into(UserImage);
 
     }
@@ -242,8 +235,8 @@ public class EditProfileActivity extends AppCompatActivity {
         Genderstrings.add("Male");
         Genderstrings.add("Female");
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(EditProfileActivity.this, R.layout.spinnerlayout, Genderstrings);
-        mGenderSpinner.setAdapter(adapter);
-        mGenderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        genderSpinner.setAdapter(adapter);
+        genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 genderPosi = position;
@@ -259,7 +252,7 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void setCarSpinners() {
+   /* private void setCarSpinners() {
         carStrings.add("Select One");
         carStrings.add("Audi A4");
         carStrings.add("BMW");
@@ -283,21 +276,30 @@ public class EditProfileActivity extends AppCompatActivity {
                 Toast.makeText(EditProfileActivity.this, "You have selected Nothing ..", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void selectTime() {
-
-        mTimePicker.setTitle("Select Time");
-        mTimePicker.show();
-    }
-
-    /*public void addContentView(ExpandableView view, String stringList, boolean showCheckbox) {
-
-        ExpandedListItemView itemView = new ExpandedListItemView(this);
-        itemView.setText(stringList, showCheckbox);
-        view.addContentView(itemView);
-
     }*/
+
+    private void ImageUploadDialog() {
+        confirm = new Dialog(this);
+        confirm.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        confirm.setContentView(R.layout.confirm_dialog);
+        confirm.setCancelable(false);
+
+        arcProgress = (ArcProgress) confirm.findViewById(R.id.arc_progress);
+        arcProgress.setMax(100);
+
+        Button cancelBtn = (Button) confirm.findViewById(R.id.et_context_cancel);
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (responseCall.isExecuted()) {
+                    responseCall.cancel();
+                }
+                confirm.dismiss();
+            }
+        });
+
+    }
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
     Calendar c = Calendar.getInstance();
@@ -314,173 +316,46 @@ public class EditProfileActivity extends AppCompatActivity {
         fromDatePickerDialog.show();
     }
 
-   /* private void createTopExpandableView() {
-        String[] androidVersionNameList = getResources().getStringArray(R.array.android_version_names);
-
-        topExpandableView.fillData(R.drawable.dot, getString(R.string.android_names), false);
-        addContentView(topExpandableView, "Audi A7", true);
-        addContentView(topExpandableView, "Haundai", true);
-//        topExpandableView.addContentView(expandableViewLevel1);
-    }*/
-
-    /*private void createMiddleExpandableView() {
-        String[] androidVersionNameList = getResources().getStringArray(R.array.android_version_names);
-
-        middleExpandableView.fillData(R.drawable.dot, getString(R.string.android_codes), false);
-        //middleExpandableView.setVisibleLayoutHeight(getResources().getDimensionPixelSize(R.dimen.new_visible_height));
-        addContentView(middleExpandableView, "Audi A7", true);
-        addContentView(middleExpandableView, "Haundai", true);
-        //addContentView(middleExpandableView, androidVersionNameList, false);
-    }*/
-
-    private void setDateTimeField() {
-
-        Calendar newCalendar = Calendar.getInstance();
-        fromDatePickerDialog = new DatePickerDialog(EditProfileActivity.this, new DatePickerDialog.OnDateSetListener() {
-
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Calendar newDate = Calendar.getInstance();
-                newDate.set(year, monthOfYear, dayOfMonth);
-                SelectedDate = dateFormatter.format(newDate.getTime());
-                etBirthDate.setText(SelectedDate);
-            }
-
-        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
-    }
-
-    private void showFileChooser() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-    }
-
-    private void captureImage() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
-        // start the image capture Intent
-        startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-    }
-
-    public Uri getOutputMediaFileUri(int type) {
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
-
-    private static File getOutputMediaFile(int type) {
-
-        // External sdcard location
-        File mediaStorageDir = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                IMAGE_DIRECTORY_NAME);
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d(TAG, "Oops! Failed create "
-                        + IMAGE_DIRECTORY_NAME + " directory");
-                return null;
-            }
-        }
-// Create a media file name
-        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
-                Locale.getDefault()).format(new Date());
-        File mediaFile;
-        if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
-        } else {
-            return null;
-        }
-        return mediaFile;
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // save file url in bundle as it will be null on scren orientation
-        // changes
-        outState.putParcelable("file_uri", fileUri);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        // get the file url
-        fileUri = savedInstanceState.getParcelable("file_uri");
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // if the result is capturing Image
 
-        if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                // successfully captured the image
-                // display it in image view
-                previewCapturedImage();
-
-            } else if (resultCode == RESULT_CANCELED) {
-                // user cancelled Image capture
-                Toast.makeText(getApplicationContext(),
-                        "You cancelled image capture", Toast.LENGTH_SHORT)
-                        .show();
-            } else {
-                // failed to capture image
-                Toast.makeText(getApplicationContext(),
-                        "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
-                        .show();
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+                //Some error handling
             }
-        }
-        if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
-            if (resultCode == RESULT_OK) {
-                filePath = data.getData();
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                    UserImage.setImageBitmap(bitmap);
 
-                } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(),
-                            "Sorry! Failed to Select image", Toast.LENGTH_SHORT)
-                            .show();
+            @Override
+            public void onImagePicked(File imageFile, EasyImage.ImageSource source, int type) {
+                ImageType = helper.LoadBooleanPref(AppConfig.PREF_USER_PROF_IMG, true);
+                //Handle the image
+                if (ImageType) {
+                    files = imageFile;
+                    Glide.with(EditProfileActivity.this)
+                            .load(imageFile)
+                            .crossFade()
+                            .placeholder(R.drawable.profile)
+                            .error(R.drawable.profile)
+                            .centerCrop()
+                            .dontAnimate()
+                            .into(UserImage);
+                    long length = imageFile.length();
+                    length = length / 1024;
+                    Toast.makeText(EditProfileActivity.this
+                            , length + " kb " + Long.parseLong(String.valueOf(length / 1024)) + " MB", Toast.LENGTH_SHORT).show();
+                    new ImageUploadHelper(EditProfileActivity.this).Upload(imageFile, "b96c450cb827366525f4df7007a121d2", ImageType, "Profile_");
+                } else {
+                    new ImageUploadHelper(EditProfileActivity.this).Upload(imageFile, "b96c450cb827366525f4df7007a121d2", ImageType, "Pan_");
                 }
-            } else if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(getApplicationContext(),
-                        "You cancelled image Selcetion", Toast.LENGTH_SHORT)
-                        .show();
+
             }
-        }
+        });
     }
 
-    private void previewCapturedImage() {
-        try {
-            // hide video preview
-            //videoPreview.setVisibility(View.GONE);
 
-            UserImage.setVisibility(View.VISIBLE);
-
-            // bimatp factory
-            BitmapFactory.Options options = new BitmapFactory.Options();
-
-            // downsizing image as it throws OutOfMemory Exception for larger
-            // images
-            options.inSampleSize = 8;
-
-            bitmap = BitmapFactory.decodeFile(fileUri.getPath(),
-                    options);
-
-            UserImage.setImageBitmap(bitmap);
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void openBottomSheet() {
+    public void openBottomSheet(final boolean ProfileImage) {
 
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet, null);
         TextView take_picture = (TextView) view.findViewById(R.id.take_picture);
@@ -497,16 +372,28 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                captureImage();
+                if (ActivityCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestCameraPermission();
+                } else {
+                    Log.i(TAG,
+                            "CAMERA permission has already been granted. Displaying camera preview.");
+                    helper.initPref();
+                    helper.SaveBooleanPref(AppConfig.PREF_USER_PROF_IMG, ProfileImage);
+                    helper.ApplyPref();
+                    EasyImage.openCamera(EditProfileActivity.this, EasyImageConfig.REQ_TAKE_PICTURE);
+                }
                 mBottomSheetDialog.dismiss();
             }
         });
 
         Open_gallary.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                showFileChooser();
+                helper.initPref();
+                helper.SaveBooleanPref(AppConfig.PREF_USER_PROF_IMG, ProfileImage);
+                helper.ApplyPref();
+                EasyImage.openGallery(EditProfileActivity.this, EasyImageConfig.REQ_PICK_PICTURE_FROM_GALLERY);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -518,7 +405,7 @@ public class EditProfileActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.UserImage:
-                openBottomSheet();
+                openBottomSheet(true);
                 break;
             case R.id.edit_username:
                 final Dialog dialog1 = new Dialog(EditProfileActivity.this);
@@ -570,6 +457,7 @@ public class EditProfileActivity extends AppCompatActivity {
             case R.id.panCard_verify:
                 break;
             case R.id.editPanCard:
+                openBottomSheet(false);
                 break;
             case R.id.SaveBtn:
                 validateData();
@@ -599,107 +487,296 @@ public class EditProfileActivity extends AppCompatActivity {
         newNumber = Usermobile.getText().toString();
         birthdate = etBirthDate.getText().toString();
 
-        sendData(mUserName, Emailid, newNumber, oldNumber, birthdate, PicUrl, genderPosi, carDetailPosi, FbStatus, CorporateMailStatus, PanCardStatus);
+        sendData(mUserName, newNumber, oldNumber, birthdate, ProfilePicaUrl, genderPosi, FbStatus, CorporateMailStatus, PanCardStatus, PanCardImageUrl);
     }
 
-    private void sendData(String mUserName, String emailid, String newNumber, String oldNumber, String birthdate, String picUrl,
-                          int genderPosi, int carDetailPosi, boolean fbStatus, boolean corporateMailStatus, boolean panCardStatus) {
+    private void sendData(final String mUserName, final String newNumber, String oldNumber, final String birthdate, final String picUrl,
+                          final int genderPosi, final boolean fbStatus, final boolean corporateMailStatus, final boolean panCardStatus, final String panCardImageUrl) {
 
-        if (!newNumber.equals(oldNumber)) {
-//            requestForSMS(mUserName, emailid, newNumber);
+       /* if (!newNumber.equals(oldNumber)) {
+            requestForSMS(mUserName, emailid, newNumber);
 
+        }*/
+        pDialog.DialogMessage("Updating User Profile ...");
+        pDialog.showDialog();
+
+        carRegisterResponseCall = apiService.PROFILE_UPDATE_RESPONSE_CALL("b96c450cb827366525f4df7007a121d2"
+                , mUserName, newNumber, birthdate, picUrl, genderPosi, fbStatus, corporateMailStatus, panCardImageUrl, panCardStatus);
+
+        carRegisterResponseCall.enqueue(new Callback<CarRegisterResponse>() {
+            @Override
+            public void onResponse(Call<CarRegisterResponse> call, Response<CarRegisterResponse> response) {
+                pDialog.hideDialog();
+                utils.showLog(TAG, String.valueOf(response.code()));
+                if (response.code() == 200) {
+                    CarRegisterResponse response1 = response.body();
+                    utils.showLog(TAG, String.valueOf(response1.isError()));
+                    if (!response.body().isError()) {
+
+                        utils.showLog(TAG, response1.getMessage());
+                        Toast.makeText(EditProfileActivity.this, "Profile SuccessFully updated...", Toast.LENGTH_SHORT).show();
+                        helper.initPref();
+                        helper.SaveStringPref(AppConfig.PREF_USER_NAME, mUserName);
+                        helper.SaveStringPref(AppConfig.PREF_USER_MOBILE, newNumber);
+                        helper.SaveStringPref(AppConfig.PREF_USER_BIRTHDATE, birthdate);
+                        helper.SaveStringPref(AppConfig.PREF_USER_PROF_IMG_URL, picUrl);
+                        Log.e(TAG, "onResponse: " + picUrl);
+//                        helper.SaveStringPref(AppConfig.PREF_USER_PROF_IMG, picUrl);
+                        helper.SaveStringPref(AppConfig.PREF_USER_PAN_IMG, panCardImageUrl);
+                        helper.SaveIntPref(AppConfig.PREF_USER_GENDER_POSITION, genderPosi);
+                        helper.SaveBooleanPref(AppConfig.PREF_USER_FB_STATUS, fbStatus);
+                        helper.SaveBooleanPref(AppConfig.PREF_USER_CORP_MAIL_STATUS, corporateMailStatus);
+                        helper.SaveBooleanPref(AppConfig.PREF_USER_PAN_CARD_STATUS, panCardStatus);
+                        helper.ApplyPref();
+                    } else {
+                        utils.showLog(TAG, response1.getMessage());
+                        Toast.makeText(EditProfileActivity.this, response1.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(EditProfileActivity.this, "Unexpected Error,Please Contact Customer Care.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CarRegisterResponse> call, Throwable t) {
+                pDialog.hideDialog();
+                utils.ShowError();
+                Log.e(TAG, "onFailure: Error");
+            }
+        });
+
+    }
+
+    /*private void UploadImage(final String carNumber, final String carModel, final int carLayoutPos, final int teaStatus, final int musicStatus
+            , final int soundStatus, final int smokeStatus) {
+
+        utils.showLog(TAG, files.toString());
+
+        confirm.show();
+
+        ProgressRequestBody requestBody = new ProgressRequestBody(files, this);
+
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("car_image", String.valueOf((System.currentTimeMillis() / 1000)) + ".jpg", requestBody);
+
+        responseCall = apiService.IMAGE_UPLOAD_RESPONSE_CALL("b96c450cb827366525f4df7007a121d2", body);
+
+        responseCall.enqueue(new Callback<ImageUploadResponse>() {
+            @Override
+            public void onResponse(Call<ImageUploadResponse> call, Response<ImageUploadResponse> response) {
+                confirm.dismiss();
+//                pDialog.hideDialog();
+                utils.showLog(TAG, String.valueOf(response.code()));
+                if (response.code() == 200) {
+                    ImageUploadResponse response1 = response.body();
+                    utils.showLog(TAG, String.valueOf(response.body().isError()));
+                    if (!response.body().isError()) {
+                        ProfilePicaUrl = response.body().getUrl();
+                        utils.showLog(TAG, ProfilePicaUrl);
+                        Toast.makeText(EditProfileActivity.this, "Image Uploaded...", Toast.LENGTH_SHORT).show();
+                        if (!ProfilePicaUrl.isEmpty())
+                            SendingRegisterCarParameters(carNumber, carModel, carLayoutPos, teaStatus, musicStatus, soundStatus, smokeStatus, ProfilePicaUrl);
+                        else
+                            Toast.makeText(EditProfileActivity.this, "There are some error. Please Upload Image Again.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        utils.showLog(TAG, response1.getMessage());
+                        Toast.makeText(EditProfileActivity.this, response1.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(EditProfileActivity.this, "Unexpected Error,Please Contact Customer Care.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ImageUploadResponse> call, Throwable t) {
+                confirm.dismiss();
+                if (call.isCanceled()) {
+                    Toast.makeText(EditProfileActivity.this, "Image Upload Canceled.", Toast.LENGTH_SHORT).show();
+                } else {
+                    utils.ShowError();
+                }
+                Log.e(TAG, "onFailure: Error");
+
+            }
+        });
+
+    }
+*/
+    @Subscribe
+    public void onEvent(UploadImageCallBack imageCallBack) {
+
+        imageCallBack.getImageType();
+        String imgurl = imageCallBack.getImageURL();
+        if (imageCallBack.getImageType()) {
+            ProfilePicaUrl = imgurl;
+        } else {
+            PanCardImageUrl = imgurl;
         }
-
     }
 
+    private void requestCameraPermission() {
+        Log.i(TAG, "CAMERA permission has NOT been granted. Requesting permission.");
+
+        // BEGIN_INCLUDE(camera_permission_request)
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.CAMERA)) {
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example if the user has previously denied the permission.
+            Log.i(TAG,
+                    "Displaying camera permission rationale to provide additional context.");
+            Snackbar.with(EditProfileActivity.this)
+                    .type(SnackbarType.MULTI_LINE)
+                    .text("Camera permission is needed to show the camera preview.")
+                    .actionLabel("OK")
+                    .actionColor(Color.CYAN)
+                    .actionListener(new ActionClickListener() {
+                        @Override
+                        public void onActionClicked(Snackbar snackbar) {
+                            ActivityCompat.requestPermissions(EditProfileActivity.this,
+                                    new String[]{Manifest.permission.CAMERA},
+                                    REQUEST_CAMERA);
+
+                        }
+                    })
+                    .duration(com.nispok.snackbar.Snackbar.SnackbarDuration.LENGTH_LONG)
+                    .swipeToDismiss(false)
+                    .show(EditProfileActivity.this);
+        } else {
+            // Camera permission has not been granted yet. Request it directly.
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                    REQUEST_CAMERA);
+        }
+        // END_INCLUDE(camera_permission_request)
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == REQUEST_CAMERA) {
+            // BEGIN_INCLUDE(permission_result)
+            // Received permission result for camera permission.
+            Log.i(TAG, "Received response for Camera permission request.");
+            // Check if the only required permission has been granted
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission has been granted, preview can be displayed
+                Log.i(TAG, "CAMERA permission has now been granted. Showing preview.");
+                Snackbar.with(EditProfileActivity.this)
+                        .type(SnackbarType.MULTI_LINE)
+                        .text("Camera Permission has been granted. Preview can now be opened.")
+                        .duration(com.nispok.snackbar.Snackbar.SnackbarDuration.LENGTH_SHORT)
+                        .swipeToDismiss(false)
+                        .show(EditProfileActivity.this);
+
+            } else {
+                Log.i(TAG, "CAMERA permission was NOT granted.");
+                Snackbar.with(EditProfileActivity.this)
+                        .type(SnackbarType.MULTI_LINE)
+                        .text("Permissions were not granted.")
+                        .duration(com.nispok.snackbar.Snackbar.SnackbarDuration.LENGTH_SHORT)
+                        .swipeToDismiss(false)
+                        .show(EditProfileActivity.this);
+
+            }
+            // END_INCLUDE(permission_result)
+
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+   /* private void requestForSMS(final String name, final String email, final String mobile) {
+
+        ApiInterface apiService =
+                ApiClient.getClient().create(ApiInterface.class);
 
 
-//    private void requestForSMS(final String name, final String email, final String mobile) {
-//
-//        ApiInterface apiService =
-//                ApiClient.getClient().create(ApiInterface.class);
-//
-//
-//
-//        StringRequest strReq = new StringRequest(Request.Method.POST,
-//                AppConfig.URL_REQUEST_SMS, new Response.Listener<String>() {
-//
-//            @Override
-//            public void onResponse(String response) {
-//                Log.d(TAG, response.toString());
-//
-//                try {
-//                    JSONObject responseObj = new JSONObject(response);
-//
-//                    // Parsing json object response
-//                    // response will be a json object
-//                    boolean error = responseObj.getBoolean("error");
-//                    String message = responseObj.getString("message");
-//
-//                    // checking for error, if not error SMS is initiated
-//                    // device should receive it shortly
-//                    if (!error) {
-//                        // boolean flag saying device is waiting for sms
-////                        pref.setIsWaitingForSms(true);
-//
-//                        // moving the screen to next pager item i.e otp screen
-////                        viewPager.setCurrentItem(1);
-////                        txtEditMobile.setText(pref.getMobileNumber());
-////                        layoutEditMobile.setVisibility(View.VISIBLE);
-//                        // TODO: 18-06-2016 here start new otp activity and make sure that you have to create new resend otp API
-//                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-//
-//                    } else {
-//                        Toast.makeText(getApplicationContext(),
-//                                "Error: " + message,
-//                                Toast.LENGTH_LONG).show();
-//                    }
-//
-//                    // hiding the progress bar
-//                    progressBar.setVisibility(View.GONE);
-//
-//                } catch (JSONException e) {
-//                    Toast.makeText(getApplicationContext(),
-//                            "Error: " + e.getMessage(),
-//                            Toast.LENGTH_LONG).show();
-//
-//                    progressBar.setVisibility(View.GONE);
-//                }
-//
-//            }
-//        }, new Response.ErrorListener() {
-//
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.e(TAG, "Error: " + error.getMessage());
-//                Toast.makeText(getApplicationContext(),
-//                        "Errorrrrrrrrrrrrr : " +error.getMessage(), Toast.LENGTH_SHORT).show();
-//                progressBar.setVisibility(View.GONE);
-//            }
-//        }) {
-//
-//            /**
-//             * Passing user parameters to our server
-//             * @return
-//             */
-//            @Override
-//            protected Map<String, String> getParams() {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("name", name);
-//                params.put("email", email);
-//                params.put("mobile", mobile);
-//
-//                Log.e(TAG, "Posting params: " + params.toString());
-//
-//                return params;
-//            }
-//
-//        };
-//
-//        // Adding request to request queue
-//        MyApplication.getInstance().addToRequestQueue(strReq);
-//    }
 
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_REQUEST_SMS, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, response.toString());
+
+                try {
+                    JSONObject responseObj = new JSONObject(response);
+
+                    // Parsing json object response
+                    // response will be a json object
+                    boolean error = responseObj.getBoolean("error");
+                    String message = responseObj.getString("message");
+
+                    // checking for error, if not error SMS is initiated
+                    // device should receive it shortly
+                    if (!error) {
+                        // boolean flag saying device is waiting for sms
+//                        pref.setIsWaitingForSms(true);
+
+                        // moving the screen to next pager item i.e VERIFY_OTP_RESPONCE_CALL screen
+//                        viewPager.setCurrentItem(1);
+//                        txtEditMobile.setText(pref.getMobileNumber());
+//                        layoutEditMobile.setVisibility(View.VISIBLE);
+                        // TODO: 18-06-2016 here start new VERIFY_OTP_RESPONCE_CALL activity and make sure that you have to create new resend VERIFY_OTP_RESPONCE_CALL API
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "Error: " + message,
+                                Toast.LENGTH_LONG).show();
+                    }
+
+                    // hiding the progress bar
+                    progressBar.setVisibility(View.GONE);
+
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(),
+                            "Error: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+
+                    progressBar.setVisibility(View.GONE);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        "Errorrrrrrrrrrrrr : " +error.getMessage(), Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+            }
+        }) {
+
+            */
+
+    /**
+     * Passing user parameters to our server
+     *
+     * @return
+     *//*
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("name", name);
+                params.put("email", email);
+                params.put("mobile", mobile);
+
+                Log.e(TAG, "Posting params: " + params.toString());
+
+                return params;
+            }
+
+        };
+
+        // Adding request to request queue
+        MyApplication.getInstance().addToRequestQueue(strReq);
+    }
+*/
     private boolean validateFirstName() {
         if (UserName.getText().toString().trim().isEmpty()) {
             UserName.setError(getString(R.string.err_msg_first_name));
@@ -755,5 +832,32 @@ public class EditProfileActivity extends AppCompatActivity {
         if (view.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
+    public void onProgressUpdate(int percentage) {
+        arcProgress.setProgress(percentage);
+    }
+
+    @Override
+    public void onError() {
+        confirm.dismiss();
+    }
+
+    @Override
+    public void onFinish() {
+        confirm.dismiss();
     }
 }

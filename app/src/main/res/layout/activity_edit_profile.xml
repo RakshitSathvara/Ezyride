@@ -55,7 +55,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="30dp">
+                android:layout_marginTop="30dp"
+                android:hint="Email">
 
                 <EditText
                     android:id="@+id/Useremail"
@@ -63,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:hint="Email"
+                    android:enabled="false"
                     android:textColor="#000000"
                     android:textColorHint="#CCC"
                     android:textSize="16sp" />
@@ -74,7 +75,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="20dp"
+                android:hint="Mobile">
 
                 <EditText
                     android:id="@+id/Usermobile"
@@ -82,8 +84,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:hint="Mobile"
                     android:inputType="number"
+                    android:maxLength="10"
                     android:textColor="#000000"
                     android:textColorHint="#CCC"
                     android:textSize="16sp" />
@@ -108,6 +110,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawableLeft="@drawable/ic_action_calendar"
+                        android:inputType="none"
                         android:textIsSelectable="false"
                         android:visibility="visible" />
 
@@ -254,52 +257,52 @@
             </LinearLayout>
 
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Car Details"
-                android:textSize="16sp" />
+            <!--<TextView
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="10dp"
+                  android:text="Car Details"
+                  android:textSize="16sp" />
 
 
-            <!--<LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical">
+             <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="20dp"
+                  android:orientation="vertical">
 
-               &lt;!&ndash; <in.vaksys.ezyride.adapters.ExpandableView
-                    android:id="@+id/activity_main_top_expandable_view11111"
-                    style="@style/Expand"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />&ndash;&gt;
+                 &lt;!&ndash; <in.vaksys.ezyride.adapters.ExpandableView
+                      android:id="@+id/activity_main_top_expandable_view11111"
+                      style="@style/Expand"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content" />&ndash;&gt;
 
-                &lt;!&ndash;<com.expandable.view.ExpandableView
-                    android:id="@+id/activity_main_top_expandable_view1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/ractangle_border" />&ndash;&gt;
-            </LinearLayout>-->
+                  &lt;!&ndash;<com.expandable.view.ExpandableView
+                      android:id="@+id/activity_main_top_expandable_view1"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_marginTop="10dp"
+                      android:background="@drawable/ractangle_border" />&ndash;&gt;
+              </LinearLayout>-->
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
+            <!-- <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="10dp"
+                 android:orientation="vertical">
 
-                <Spinner
-                    android:id="@+id/carSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:dropDownVerticalOffset="40dp"
-                    android:spinnerMode="dropdown" />
-
-                <!-- <view
+                 <Spinner
+                     android:id="@+id/carSpinner"
                      android:layout_width="match_parent"
-                     android:layout_height="2dp"
-                     android:background="#BABABA" />-->
-            </LinearLayout>
+                     android:layout_height="wrap_content"
+                     android:dropDownVerticalOffset="40dp"
+                     android:spinnerMode="dropdown" />
+
+                 &lt;!&ndash; <view
+                      android:layout_width="match_parent"
+                      android:layout_height="2dp"
+                      android:background="#BABABA" />&ndash;&gt;
+             </LinearLayout>-->
 
             <Button
                 android:id="@+id/SaveBtn"

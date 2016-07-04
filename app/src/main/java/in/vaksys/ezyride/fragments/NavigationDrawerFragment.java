@@ -23,8 +23,8 @@ import java.util.List;
 
 import in.vaksys.ezyride.R;
 import in.vaksys.ezyride.adapters.NavigationDrawerAdapter;
-import in.vaksys.ezyride.utils.NavigationDrawerCallbacks;
 import in.vaksys.ezyride.pojo.NavigationItem;
+import in.vaksys.ezyride.utils.NavigationDrawerCallbacks;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -123,6 +123,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         items.add(new NavigationItem(getResources().getString(R.string.privacy_policy), getResources().getDrawable(R.drawable.ic_action_privacy)));
         items.add(new NavigationItem(getResources().getString(R.string.messages), getResources().getDrawable(R.drawable.ic_action_message)));
         items.add(new NavigationItem(getResources().getString(R.string.my_rides), getResources().getDrawable(R.drawable.ic_action_home)));
+        items.add(new NavigationItem(getResources().getString(R.string.my_cars), getResources().getDrawable(R.drawable.ic_action_home)));
 
         return items;
     }
@@ -239,6 +240,13 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         ((TextView) mFragmentContainerView.findViewById(R.id.txtUserEmail)).setText(email);
         ((TextView) mFragmentContainerView.findViewById(R.id.txtUsername)).setText(user);
         avatarContainer.setImageBitmap(avatar);
+        /*Glide.with(this)
+                .load(avatar)
+                .crossFade()
+                .centerCrop()
+                .placeholder(R.drawable.profile)
+                .error(R.drawable.profile)
+                .into(avatarContainer);*/
     }
 
     public View getGoogleDrawer() {

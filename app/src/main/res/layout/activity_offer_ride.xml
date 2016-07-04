@@ -144,115 +144,89 @@
 
             </LinearLayout>
 
-            <ScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
 
-                <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content"
+                    android:text="Select Car" />
 
-                    <in.vaksys.ezyride.adapters.ExpandableView
-                        android:id="@+id/activity_main_top_expandable_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/ractangle_border" />
+                <Spinner
+                    android:id="@+id/spinner_car_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:dropDownVerticalOffset="40dp"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
 
-                    <in.vaksys.ezyride.adapters.ExpandableView
-                        android:id="@+id/activity_main_middle_expandable_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/ractangle_border" />
-
-                </LinearLayout>
-            </ScrollView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
                 android:orientation="horizontal">
 
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/et_price_input"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_weight="1"
-                        android:text="PRICE/SEAT" />
+                        android:hint="PRICE/SEAT">
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="20dp"
+                        <EditText
+                            android:id="@+id/et_Price"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/ic_action_rupee" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="850"
+                            android:drawableLeft="@drawable/ic_action_rupee"
+                            android:hint="PRICE/SEAT"
+                            android:inputType="number"
                             android:textColor="#000000"
                             android:textSize="16sp" />
+                    </android.support.design.widget.TextInputLayout>
 
-                    </LinearLayout>
-
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="5dp"
-                        android:background="#CCC" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_weight="1"
-                        android:text="SEAT AVAILABLE" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_weight="1"
-                        android:text="3"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-
-                    <View
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/et_seat_input"
                         android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:layout_marginTop="5dp"
-                        android:background="#CCC" />
-                </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:hint="Seat Available">
 
+                        <EditText
+                            android:id="@+id/et_seat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableLeft="@drawable/ic_action_seat"
+                            android:hint="Seat Available"
+                            android:inputType="number"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
+                    </android.support.design.widget.TextInputLayout>
+
+
+                </LinearLayout>
 
             </LinearLayout>
 
             <CheckBox
+                android:id="@+id/ladies_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
@@ -275,7 +249,6 @@
                 android:textSize="16sp" />
 
         </LinearLayout>
-
 
     </ScrollView>
 
