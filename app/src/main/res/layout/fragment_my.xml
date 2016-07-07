@@ -1,7 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_search_ride"
@@ -11,4 +12,13 @@
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
         tools:listitem="@layout/single_row_ride" />
+
+    <tr.xip.errorview.ErrorView
+        android:id="@+id/error_view_search"
+        app:ev_errorImage="@drawable/errorimage"
+        app:ev_retryButtonTextColor="#ef3939"
+        app:ev_subtitle="No Cars Found"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 </FrameLayout>

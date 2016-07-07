@@ -110,12 +110,10 @@ public class EditProfileActivity extends AppCompatActivity implements ProgressRe
     private static final String TAG = "EditProfileActivity";
     private DatePickerDialog fromDatePickerDialog;
     ArrayList<String> Genderstrings = new ArrayList<>();
-    ArrayList<String> carStrings = new ArrayList<>();
+//    ArrayList<String> carStrings = new ArrayList<>();
 
     private SimpleDateFormat dateFormatter;
-    private String SelectedDate;
 
-    //    private Spinner mGenderSpinner, mSelectCar;
     private String GenderSpinnItem, carSpinnItem;
     private boolean FbStatus;
     private boolean CorporateMailStatus;

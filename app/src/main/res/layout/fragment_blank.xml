@@ -1,173 +1,147 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fancy="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <!--<LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
 
-        <!--  <android.support.design.widget.TextInputLayout
-              android:id="@+id/input_layout_from"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_margin="5dp"
-              android:textColorHint="@color/colorAccent">
-
-              <EditText
-                  android:id="@+id/input_from"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:drawableRight="@drawable/ic_near_me_white_24dp"
-                  android:hint="@string/from"
-                  android:singleLine="true"
-                  android:textColor="@color/colorAccent"
-                  android:textColorHint="@color/colorAccent" />
-          </android.support.design.widget.TextInputLayout>
-
-          <android.support.design.widget.TextInputLayout
-              android:id="@+id/input_layout_to"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_margin="5dp"
-              android:textColorHint="@color/colorAccent">
-
-              <EditText
-                  android:id="@+id/input_to"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:hint="@string/to"
-                  android:singleLine="true"
-                  android:textColor="@color/colorAccent"
-                  android:textColorHint="@color/colorAccent" />
-          </android.support.design.widget.TextInputLayout>
-  -->
-        <FrameLayout
+        <in.vaksys.ezyride.utils.PercentLinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="70dp">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/SearchGetFromLocation"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                app:layout_widthPercent="90%">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="FROM"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#ffffff"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/SearchFromMainName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Hyderabad"
                     android:textColor="#FFFFFF"
                     android:textSize="30sp" />
 
                 <TextView
+                    android:id="@+id/SearchFromSubName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Madhapur cyber tower, Hitechcity"
+                    android:text="Madhapur cyber tower, Hitechcitysad"
                     android:textColor="#FFFFFF" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#FFFFFF" />
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/SearchGetCurrentLocation"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|bottom"
-                android:layout_marginBottom="2dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/ic_near_me_white_24dp" />
-
-        </FrameLayout>
+                android:layout_height="match_parent"
+                android:scaleType="fitEnd"
+                android:src="@drawable/ic_near_me_white_24dp"
+                app:layout_widthPercent="10%" />
 
 
-        <FrameLayout
+        </in.vaksys.ezyride.utils.PercentLinearLayout>
+
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp">
+            android:layout_height="2dp"
+            android:background="#CCC" />
+
+        <in.vaksys.ezyride.utils.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/SearchGetToLocation"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                app:layout_widthPercent="90%">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="TO"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/SearchToMainName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Seconderabad"
                     android:textColor="#FFFFFF"
                     android:textSize="30sp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/SearchToSubName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLines="2"
                     android:text="Seconderabad railway stasion, Secondrabad"
                     android:textColor="#FFFFFF" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#FFFFFF" />
 
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/Search_btn_swap"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|top"
-                android:layout_marginBottom="2dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/swap" />
-        </FrameLayout>
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:src="@drawable/swap"
+                app:layout_widthPercent="10%" />
+        </in.vaksys.ezyride.utils.PercentLinearLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/btn_search_ride"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/buttonshape"
-            android:text="@string/search_ride"
-            android:textColor="#FFFFFF" />
+            android:layout_height="2dp"
+            android:background="#CCC" />
 
-        <Button
-            android:id="@+id/btn_offer_ride"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/buttonshape"
-            android:text="@string/offer_ride"
-            android:textColor="#FFFFFF" />
-    </LinearLayout>
-</LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="90dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btn_search_ride"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/buttonshape"
+                android:text="@string/search_ride"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btn_offer_ride"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/buttonshape"
+                android:text="@string/offer_ride"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+    </LinearLayout>-->
+</RelativeLayout>

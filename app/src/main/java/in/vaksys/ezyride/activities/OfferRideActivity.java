@@ -430,22 +430,26 @@ public class OfferRideActivity extends AppCompatActivity implements DatePickerDi
             result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
                 @Override
                 public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+                    if (likelyPlaces.getCount() > 0) {
+                        utils.showLog(TAG, "" + likelyPlaces.getCount());
+                        PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
+                        //                String content = "";
+                        if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName())) {
+                            FromMainName.setText(placeLikelihood.getPlace().getName());
+                            FromSubName.setText(placeLikelihood.getPlace().getAddress());
 
-                    PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
-                    //                String content = "";
-                    if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName())) {
-                        FromMainName.setText(placeLikelihood.getPlace().getName());
-                        FromSubName.setText(placeLikelihood.getPlace().getAddress());
+                            LatLng FromLatLng = placeLikelihood.getPlace().getLatLng();
 
-                        LatLng FromLatLng = placeLikelihood.getPlace().getLatLng();
-
-                        FromLat = FromLatLng.latitude;
-                        FromLng = FromLatLng.longitude;
-                        //                    content = "Most likely place: " + placeLikelihood.getPlace().getName() + "\n" + placeLikelihood.getPlace().getAddress();
+                            FromLat = FromLatLng.latitude;
+                            FromLng = FromLatLng.longitude;
+                            //                    content = "Most likely place: " + placeLikelihood.getPlace().getName() + "\n" + placeLikelihood.getPlace().getAddress();
+                        }
+                        //                if (placeLikelihood != null)
+                        //                    content += "Percent change of being there: " + (int) (placeLikelihood.getLikelihood() * 100) + "%";
+                        //                Log.e(TAG, "displayLocation: " + content);
+                    } else {
+                        Toast.makeText(OfferRideActivity.this, "Auto Location can't fetch", Toast.LENGTH_SHORT).show();
                     }
-                    //                if (placeLikelihood != null)
-                    //                    content += "Percent change of being there: " + (int) (placeLikelihood.getLikelihood() * 100) + "%";
-                    //                Log.e(TAG, "displayLocation: " + content);
                     likelyPlaces.release();
                 }
             });

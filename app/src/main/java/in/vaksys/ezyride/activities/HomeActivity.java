@@ -47,7 +47,7 @@ import butterknife.ButterKnife;
 import in.vaksys.ezyride.MyApplication;
 import in.vaksys.ezyride.R;
 import in.vaksys.ezyride.extras.Utils;
-import in.vaksys.ezyride.fragments.BlankFragment;
+import in.vaksys.ezyride.fragments.SearchRideFragment;
 import in.vaksys.ezyride.fragments.NavigationDrawerFragment;
 import in.vaksys.ezyride.fragments.RegisterDialog;
 import in.vaksys.ezyride.utils.AppConfig;
@@ -123,7 +123,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
-        ft.add(R.id.container, new BlankFragment());
+        ft.add(R.id.container, new SearchRideFragment());
         ft.commit();
 
         dialog = new Dialog(HomeActivity.this);
@@ -239,14 +239,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
                     Log.e(TAG, "onNavigationDrawerItemSelected 0 : " + tempflag);
                     fm = getSupportFragmentManager();
                     ft = fm.beginTransaction();
-                    ft.add(R.id.container, new BlankFragment());
+                    ft.add(R.id.container, new SearchRideFragment());
                     ft.commit();
                     tempflag++;
                     break;
                 } else if (tempflag > 0) {
                     Log.e(TAG, "onNavigationDrawerItemSelected 1 : " + tempflag);
                     ft = fm.beginTransaction();
-                    ft.replace(R.id.container, new BlankFragment());
+                    ft.replace(R.id.container, new SearchRideFragment());
                     ft.commit();
                     break;
                 }

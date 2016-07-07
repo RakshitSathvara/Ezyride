@@ -22,6 +22,8 @@ public class AppConfig {
 
     public static final String URL_GET_MY_CARS = "car_details";
 
+    public static final String URL_SEARCH_RIDE = "search_ride";
+
     // SMS provider identification
     // It should match with your SMS gateway origin
     // You can use  MSGIND, TESTER and ALERTS as sender ID
@@ -69,5 +71,12 @@ public class AppConfig {
     public static final String PREF_USER_PROF_IMG_URL = "profile_image_url";
     public static final String PREF_USER_PAN_IMG = "pan_image";
 
+
+    public static final String PREF_SEARCH_FILE_NAME = "search_details";
+
+    public static final String PREF_SEARCH_TO_LAT = "to_lat";
+    public static final String PREF_SEARCH_TO_LONG = "to_long";
+    public static final String PREF_SEARCH_FROM_LONG = "from_long";
+    public static final String PREF_SEARCH_FROM_LAT = "from_lat";
 
 }

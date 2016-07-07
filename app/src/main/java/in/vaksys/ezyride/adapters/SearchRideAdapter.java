@@ -8,23 +8,27 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.vaksys.ezyride.R;
+import in.vaksys.ezyride.responces.SearchRideResponse;
 
 /**
  * Created by Harsh on 27-01-2016.
  */
 public class SearchRideAdapter extends RecyclerView.Adapter<SearchRideAdapter.ViewHolder> {
 
-
     private final Context context;
-    private final String[] kmtext;
+    private final List<SearchRideResponse.RidesEntity> searchRideResponses;
 
-    public SearchRideAdapter(Context context, String[] kmtext) {
+    public SearchRideAdapter(Context context, List<SearchRideResponse.RidesEntity> searchRideResponses) {
         this.context = context;
-        this.kmtext = kmtext;
+        this.searchRideResponses = searchRideResponses;
     }
 
     @Override
@@ -37,13 +41,27 @@ public class SearchRideAdapter extends RecyclerView.Adapter<SearchRideAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.ridePrice.setText(String.format("%s %s", context.getResources().getString(R.string.Rs), kmtext[position]));
+        SearchRideResponse.RidesEntity ridesEntity = searchRideResponses.get(position);
+
+        holder.ridePrice.setText(String.format("%s %s", context.getResources().getString(R.string.Rs), ridesEntity.getPricePerSeat()));
+        holder.riderName.setText(ridesEntity.getUsername());
+        holder.rideLocation.setText(String.format("From %s to %s", ridesEntity.getFromMainAddress(), ridesEntity.getToMainAddress()));
+        holder.rideTime.setText(ridesEntity.getRideTime());
+        holder.rideSeat.setText(ridesEntity.getSeatAvailability());
+        Glide.with(context)
+                .load(ridesEntity.getUserImage())
+                .crossFade()
+                .placeholder(R.drawable.large)
+                .error(R.drawable.large)
+                .centerCrop()
+                .dontAnimate()
+                .into(holder.riderImg);
     }
 
 
     @Override
     public int getItemCount() {
-        return (null != kmtext ? kmtext.length : 0);
+        return (null != searchRideResponses ? searchRideResponses.size() : 0);
     }
 
 

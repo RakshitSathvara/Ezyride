@@ -69,6 +69,8 @@
     <string name="error_title_ops">Oops …</string>
     <string name="error_subtitle_no_car_found">Seems like you haven\'t any Car yet.</string>
     <string name="error_subtitle_no_connection">Seems Like you don\'t have an internet Connection</string>
+    <string name="error_subtitle_no_ride_found">No ride Found in your Area</string>
+    <string name="error_view_find_ride">Find New Ride</string>
 
 
 </resources>

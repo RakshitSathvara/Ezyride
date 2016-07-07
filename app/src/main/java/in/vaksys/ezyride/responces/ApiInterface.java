@@ -85,4 +85,10 @@ public interface ApiInterface {
             , @Field("contact") String contact, @Field("dob") String Dob, @Field("profile_pic") String profile_pic
             , @Field("gender") int gender, @Field("fb_stat") boolean fb_stat, @Field("corp_email_verify") boolean corp_email_verify
             , @Field("pan_image") String pan_image, @Field("pan_verify") boolean pan_verify);
+
+    @FormUrlEncoded
+    @POST(AppConfig.URL_SEARCH_RIDE)
+    Call<SearchRideResponse> SEARCH_RIDE_RESPONSE_CALL(@Header("Authorization") String auuth, @Field("to_lat") String to_lat
+            , @Field("to_long") String to_long, @Field("from_lat") String from_lat
+            , @Field("from_long") String from_long, @Field("date") String date);
 }

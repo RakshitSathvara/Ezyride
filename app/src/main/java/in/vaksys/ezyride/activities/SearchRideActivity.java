@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,6 +27,7 @@ public class SearchRideActivity extends AppCompatActivity {
     TabLayout tabs;
     @Bind(R.id.pager)
     ViewPager pager;
+    Date myDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,27 +43,32 @@ public class SearchRideActivity extends AppCompatActivity {
 
     }
 
-    public static Date addDays(Date date, int days) {
+    public static String addDays(Date date, int days) {
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DATE, days); //minus number would decrement the days
-        return cal.getTime();
+        return df.format(cal.getTime());
     }
 
     void setupViewPager(ViewPager viewPager) {
-
 
         Calendar c = Calendar.getInstance();
         System.out.println("Current time => " + c.getTime());
 
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
         String formattedDate = df.format(c.getTime());
-
+        try {
+            myDate = df.parse(formattedDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new FragmentDummy(), formattedDate);
-        adapter.addFragment(new FragmentDummy(), formattedDate);
-        adapter.addFragment(new FragmentDummy(), formattedDate);
+
+        adapter.addFragment(FragmentDummy.getInstance(addDays(myDate, -1)), addDays(myDate, -1));
+        adapter.addFragment(FragmentDummy.getInstance(formattedDate), formattedDate);
+        adapter.addFragment(FragmentDummy.getInstance(addDays(myDate, 1)), addDays(myDate, 1));
 
         viewPager.setAdapter(adapter);
     }
