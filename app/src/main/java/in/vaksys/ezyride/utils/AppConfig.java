@@ -79,4 +79,19 @@ public class AppConfig {
     public static final String PREF_SEARCH_FROM_LONG = "from_long";
     public static final String PREF_SEARCH_FROM_LAT = "from_lat";
 
+
+    public static final String DETAIL_LIST = "detail_list";
+    public static final String DETAIL_POSITION = "detail_list_posi";
+
+
+    public static final String BUNDLE_PRICE_PER_SEAT = "PricePerSeat";
+    public static final String BUNDLE_USER_NAME = "user_name";
+    public static final String BUNDLE_USER_ID = "user_id";
+    public static final String BUNDLE_USER_IMAGE_URL = "user_img_url";
+    public static final String BUNDLE_CAR_ID = "car_id";
+    public static final String BUNDLE_FROM_LAT = "from_lat";
+    public static final String BUNDLE_FROM_LNG = "from_lng";
+    public static final String BUNDLE_TO_LNG = "to_lng";
+    public static final String BUNDLE_TO_LAT = "to_lat";
+//    public static final String BUNDLE_TO_LAT = "to_lat";
 }

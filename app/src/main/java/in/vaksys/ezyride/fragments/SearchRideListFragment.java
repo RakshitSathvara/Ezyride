@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -39,14 +41,14 @@ import tr.xip.errorview.ErrorView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FragmentDummy extends Fragment {
+public class SearchRideListFragment extends Fragment {
     @Bind(R.id.recycler_view_search_ride)
     RecyclerView recyclerViewSearchRide;
     @Bind(R.id.error_view_search)
     ErrorView errorView;
     SearchRideAdapter searchRideAdapter;
-//    private String[] MyPrice = {"200", "200", "200", "200", "200", "200", "200", "200", "200", "200"};
-    private static final String TAG = "FragmentDummy";
+    //    private String[] MyPrice = {"200", "200", "200", "200", "200", "200", "200", "200", "200", "200"};
+    private static final String TAG = "SearchRideListFragment";
 
     ProgresDialog pDialog;
     PreferenceHelper helper;
@@ -56,17 +58,20 @@ public class FragmentDummy extends Fragment {
     private String to_long;
     private String from_lat;
     private String from_long;
+    List<SearchRideResponse.RidesEntity> aa;
     static SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
     static Calendar c = Calendar.getInstance();
     private static String TodayDate = df.format(c.getTime());
+    private int tag1 = 0;
+    private EventBus eventBus = EventBus.getDefault();
 
-    public static FragmentDummy getInstance(String Date) {
-        FragmentDummy fragmentDummy = new FragmentDummy();
+    public static SearchRideListFragment getInstance(String Date) {
+        SearchRideListFragment searchRideListFragment = new SearchRideListFragment();
         Bundle args = new Bundle();
         args.putString("position", Date);
         TodayDate = Date;
-        fragmentDummy.setArguments(args);
-        return fragmentDummy;
+        searchRideListFragment.setArguments(args);
+        return searchRideListFragment;
     }
 
     @Override
@@ -101,8 +106,8 @@ public class FragmentDummy extends Fragment {
 //        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
 
 //        TodayDate = df.format(c.getTime());
-        NetworkCall(to_lat, to_long, from_lat, from_long, TodayDate);
-//        NetworkCall("19.0759837", "72.8776559", "21.170240099999997", "72.83106070000001", TodayDate);
+//        NetworkCall(to_lat, to_long, from_lat, from_long, TodayDate);
+        NetworkCall("19.0759837", "72.8776559", "21.170240099999997", "72.83106070000001", "15-07-2016");
 
         return layout;
 
@@ -113,9 +118,9 @@ public class FragmentDummy extends Fragment {
         pDialog.DialogMessage("Fetching Available Rides ...");
         pDialog.showDialog();
 
-        Call<SearchRideResponse> call = apiService.SEARCH_RIDE_RESPONSE_CALL("b96c450cb827366525f4df7007a121d2"
+        Call<SearchRideResponse> call = apiService.SEARCH_RIDE_RESPONSE_CALL("9bb2f29fe5a1ce84866c4f42bad91237"
                 , to_lat, to_long, from_lat, from_long, todayDate);
-
+        utils.showLog(TAG, to_lat + " " + to_long + " " + from_lat + " " + from_long + " " + todayDate);
         call.enqueue(new Callback<SearchRideResponse>() {
             @Override
             public void onResponse(Call<SearchRideResponse> call, Response<SearchRideResponse> response) {
@@ -129,7 +134,7 @@ public class FragmentDummy extends Fragment {
 
                     if (!response.body().isError()) {
 
-                        List<SearchRideResponse.RidesEntity> aa = response.body().getRides();
+                        aa = response.body().getRides();
 //                        MyCarAdapter myCarAdapter = new MyCarAdapter(getActivity(), aa);
                         searchRideAdapter = new SearchRideAdapter(getActivity(), aa);
                         recyclerViewSearchRide.setAdapter(searchRideAdapter);
@@ -177,7 +182,7 @@ public class FragmentDummy extends Fragment {
             });
         } else {
             errorView.setConfig(ErrorView.Config.create()
-                    .image(R.drawable.errorimage)
+                    .image(R.drawable.ride_not_found)
                     .title(getString(R.string.error_title_ops))
                     .titleColor(getResources().getColor(R.color.colorPrimary))
                     .subtitle(getString(R.string.error_subtitle_no_ride_found))
@@ -192,6 +197,16 @@ public class FragmentDummy extends Fragment {
             });
         }
     }
+
+   /* private void sendCurrentData() {
+        utils.showLog(TAG, "called121    " + tag1);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("channel", (ArrayList<SearchRideResponse.RidesEntity>) aa);
+        Intent intent = new Intent(getActivity(), SearchLocationActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }*/
+
 
     @Override
     public void onDestroyView() {

@@ -139,7 +139,7 @@ public class MyCarActivity extends AppCompatActivity {
             });
         } else {
             errorView.setConfig(ErrorView.Config.create()
-                    .image(R.drawable.errorimage)
+                    .image(R.drawable.car_not_found)
                     .title(getString(R.string.error_title_ops))
                     .titleColor(getResources().getColor(R.color.colorPrimary))
                     .subtitle(getString(R.string.error_subtitle_no_car_found))

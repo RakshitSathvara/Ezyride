@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
@@ -633,9 +634,6 @@ public class CarDetailsActivity extends AppCompatActivity implements ProgressReq
         // BEGIN_INCLUDE(camera_permission_request)
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CAMERA)) {
-            // Provide an additional rationale to the user if the permission was not granted
-            // and the user would benefit from additional context for the use of the permission.
-            // For example if the user has previously denied the permission.
             Log.i(TAG,
                     "Displaying camera permission rationale to provide additional context.");
             Snackbar.with(CarDetailsActivity.this)
@@ -668,12 +666,9 @@ public class CarDetailsActivity extends AppCompatActivity implements ProgressReq
                                            @NonNull int[] grantResults) {
 
         if (requestCode == REQUEST_CAMERA) {
-            // BEGIN_INCLUDE(permission_result)
-            // Received permission result for camera permission.
+
             Log.i(TAG, "Received response for Camera permission request.");
-            // Check if the only required permission has been granted
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Camera permission has been granted, preview can be displayed
                 Log.i(TAG, "CAMERA permission has now been granted. Showing preview.");
                 Snackbar.with(CarDetailsActivity.this)
                         .type(SnackbarType.MULTI_LINE)
@@ -681,6 +676,13 @@ public class CarDetailsActivity extends AppCompatActivity implements ProgressReq
                         .duration(com.nispok.snackbar.Snackbar.SnackbarDuration.LENGTH_SHORT)
                         .swipeToDismiss(false)
                         .show(CarDetailsActivity.this);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        EasyImage.openCamera(CarDetailsActivity.this, EasyImageConfig.REQ_TAKE_PICTURE);
+                    }
+                }, 1000);
 
             } else {
                 Log.i(TAG, "CAMERA permission was NOT granted.");
@@ -692,8 +694,6 @@ public class CarDetailsActivity extends AppCompatActivity implements ProgressReq
                         .show(CarDetailsActivity.this);
 
             }
-            // END_INCLUDE(permission_result)
-
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }

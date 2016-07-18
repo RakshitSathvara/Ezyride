@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -91,8 +92,7 @@ public class RegisterDialog extends DialogFragment {
         helper = new PreferenceHelper(getActivity(), AppConfig.PREF_USER_FILE_NAME);
 
         getDialog().setCancelable(true);
-        getDialog().setTitle("Register");
-
+        getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         setSpinners();
         setDateTimeField();

@@ -5,8 +5,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -41,6 +43,9 @@ import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.enums.SnackbarType;
+import com.nispok.snackbar.listeners.ActionClickListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -282,9 +287,7 @@ public class SearchRideFragment extends Fragment implements GoogleApiClient.Conn
 
     private void guessCurrentPlace() {
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    ACCESS_FINE_LOCATION);
+            runtime_permissions();
             return;
         }
         try {
@@ -325,13 +328,8 @@ public class SearchRideFragment extends Fragment implements GoogleApiClient.Conn
 
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
+            runtime_permissions();
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -357,23 +355,6 @@ public class SearchRideFragment extends Fragment implements GoogleApiClient.Conn
                 FromLat = FromLatLng.latitude;
                 FromLng = FromLatLng.longitude;
 
-                /*String placeDetailsStr = place.getName() + "\n"
-                        + place.getId() + "\n"
-                        + place.getLatLng().toString() + "\n"
-                        + place.getAddress() + "\n"
-                        + place.getAttributions();
-                Log.e(TAG, "onPlaceSelected: " + placeDetailsStr);
-                Log.e(TAG, "onPlaceSelected11: " + formatPlaceDetails(getResources(), place.getName(),
-                        place.getId(), place.getAddress(), place.getPhoneNumber(),
-                        place.getWebsiteUri()));
-                // Display attributions if required.
-                CharSequence attributions = place.getAttributions();
-                if (!TextUtils.isEmpty(attributions)) {
-                    Log.e(TAG, "onActivityResult: " + Html.fromHtml(attributions.toString()));
-                } else {
-                    Log.e(TAG, "onActivityResult: ");
-
-                }*/
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getActivity(), data);
                 Log.e(TAG, "hehh : " + status.getStatusMessage());
@@ -417,7 +398,9 @@ public class SearchRideFragment extends Fragment implements GoogleApiClient.Conn
         super.onResume();
 
         checkPlayServices();
-
+        if (mGoogleApiClient == null) {
+            buildGoogleApiClient();
+        }
         // Resuming the periodic location updates
         if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
             startLocationUpdates();
@@ -433,23 +416,73 @@ public class SearchRideFragment extends Fragment implements GoogleApiClient.Conn
         }
     }
 
+    private void runtime_permissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Log.i(TAG,
+                    "Displaying camera permission rationale to provide additional context.");
+            Snackbar.with(getActivity())
+                    .type(SnackbarType.MULTI_LINE)
+                    .text("Location permission is needed to get the current Location.")
+                    .actionLabel("OK")
+                    .actionColor(Color.CYAN)
+                    .actionListener(new ActionClickListener() {
+                        @Override
+                        public void onActionClicked(Snackbar snackbar) {
+                            Ask_Permission();
+                        }
+                    })
+                    .duration(com.nispok.snackbar.Snackbar.SnackbarDuration.LENGTH_LONG)
+                    .swipeToDismiss(false)
+                    .show(getActivity());
+        } else {
+            // Camera permission has not been granted yet. Request it directly.
+            Ask_Permission();
+
+        }
+    }
+
+    private void Ask_Permission() {
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                ACCESS_FINE_LOCATION);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    guessCurrentPlace();
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "Location permission has now been granted. Getting Location...");
+                    Snackbar.with(getActivity())
+                            .type(SnackbarType.MULTI_LINE)
+                            .text("Location permission has now been granted. Getting Location...")
+                            .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
+                            .swipeToDismiss(false)
+                            .show(getActivity());
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            guessCurrentPlace();
+                        }
+                    }, 1000);
 
                 } else {
-
-                    Toast.makeText(getActivity(), "You Have to Grant That Permission.", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Location permission was NOT granted.");
+                    Snackbar.with(getActivity())
+                            .type(SnackbarType.MULTI_LINE)
+                            .text("Permissions were not granted.")
+                            .duration(com.nispok.snackbar.Snackbar.SnackbarDuration.LENGTH_SHORT)
+                            .swipeToDismiss(false)
+                            .show(getActivity());
                 }
+            }
+            default: {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
         }
     }
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

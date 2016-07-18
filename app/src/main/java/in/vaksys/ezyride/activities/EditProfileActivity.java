@@ -22,6 +22,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -112,7 +113,7 @@ public class EditProfileActivity extends AppCompatActivity implements ProgressRe
     ArrayList<String> Genderstrings = new ArrayList<>();
 //    ArrayList<String> carStrings = new ArrayList<>();
 
-    private SimpleDateFormat dateFormatter;
+//    private SimpleDateFormat dateFormatter;
 
     private String GenderSpinnItem, carSpinnItem;
     private boolean FbStatus;
@@ -136,6 +137,9 @@ public class EditProfileActivity extends AppCompatActivity implements ProgressRe
     private boolean ImageType;
     private String PanCardImageUrl;
     Call<CarRegisterResponse> carRegisterResponseCall;
+    SimpleDateFormat sdf;
+    Calendar c;
+    Date d;
 
 
     @Override
@@ -180,7 +184,7 @@ public class EditProfileActivity extends AppCompatActivity implements ProgressRe
                 .create(ApiInterface.class);
         pDialog = new ProgresDialog(this);
         pDialog.createDialog(false);
-        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+//        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         EasyImage.configuration(this)
                 .setImagesFolderName("Choose Car Image")
                 .setImagesFolderName(String.valueOf(new File(
@@ -190,6 +194,21 @@ public class EditProfileActivity extends AppCompatActivity implements ProgressRe
         helper.initPref();
         helper.SaveBooleanPref(AppConfig.PREF_USER_IMG_CHANGE, false);
         helper.ApplyPref();
+
+
+        sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        c = Calendar.getInstance();
+        d = null;
+        c.add(Calendar.DAY_OF_MONTH, 0);  // number of days to add, can also use Calendar.DAY_OF_MONTH in place of Calendar.DATE
+        String formattedDate = sdf.format(c.getTime());
+        try {
+            d = sdf.parse(formattedDate);
+        } catch (ParseException e) {
+            Log.e(TAG, "SelectfromDate: " + e);
+        }
+        fromDatePickerDialog = new DatePickerDialog(this, dateSetListener, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        fromDatePickerDialog.getDatePicker().setMinDate(d.getTime());
+
     }
 
     private void setPreviosData() {
@@ -299,21 +318,29 @@ public class EditProfileActivity extends AppCompatActivity implements ProgressRe
 
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
-    Calendar c = Calendar.getInstance();
 
     private void SelectfromDate() {
-        String formattedDate = sdf.format(c.getTime()); // current date
-        Date d = null;
+
+       /* String formattedDate = sdf.format(c.getTime()); // current date
         try {
             d = sdf.parse(formattedDate);
         } catch (ParseException e) {
             Log.e(TAG, "SelectfromDate: " + e);
         }
+//        assert d != null;
         fromDatePickerDialog.getDatePicker().setMinDate(d.getTime());
+        fromDatePickerDialog.show();*/
+
         fromDatePickerDialog.show();
     }
 
+    private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+            c.set(i, i1, i2);
+            etBirthDate.setText(sdf.format(c.getTime()));
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

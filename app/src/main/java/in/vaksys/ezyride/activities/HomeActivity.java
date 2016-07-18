@@ -47,9 +47,9 @@ import butterknife.ButterKnife;
 import in.vaksys.ezyride.MyApplication;
 import in.vaksys.ezyride.R;
 import in.vaksys.ezyride.extras.Utils;
-import in.vaksys.ezyride.fragments.SearchRideFragment;
 import in.vaksys.ezyride.fragments.NavigationDrawerFragment;
 import in.vaksys.ezyride.fragments.RegisterDialog;
+import in.vaksys.ezyride.fragments.SearchRideFragment;
 import in.vaksys.ezyride.utils.AppConfig;
 import in.vaksys.ezyride.utils.NavigationDrawerCallbacks;
 import in.vaksys.ezyride.utils.PreferenceHelper;
@@ -120,12 +120,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
         // populate the navigation drawer
         mNavigationDrawerFragment.setUserData("Dhaval Thakor", "dhaval@vakratunda.com",
                 BitmapFactory.decodeResource(getResources(), R.drawable.user));
-
-        fm = getSupportFragmentManager();
-        ft = fm.beginTransaction();
-        ft.add(R.id.container, new SearchRideFragment());
-        ft.commit();
-
+        if (tempflag > 2) {
+            fm = getSupportFragmentManager();
+            ft = fm.beginTransaction();
+            ft.add(R.id.container, new SearchRideFragment());
+            ft.commit();
+        }
         dialog = new Dialog(HomeActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         //setting custom layout to dialog

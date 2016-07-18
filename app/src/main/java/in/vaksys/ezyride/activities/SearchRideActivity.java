@@ -1,10 +1,12 @@
 package in.vaksys.ezyride.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -12,12 +14,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import in.vaksys.ezyride.R;
 import in.vaksys.ezyride.adapters.ViewPagerAdapter;
-import in.vaksys.ezyride.fragments.FragmentDummy;
+import in.vaksys.ezyride.extras.Utils;
+import in.vaksys.ezyride.fragments.SearchRideListFragment;
 
 public class SearchRideActivity extends AppCompatActivity {
 
@@ -28,6 +32,7 @@ public class SearchRideActivity extends AppCompatActivity {
     @Bind(R.id.pager)
     ViewPager pager;
     Date myDate;
+    private int Posi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +49,7 @@ public class SearchRideActivity extends AppCompatActivity {
     }
 
     public static String addDays(Date date, int days) {
-        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DATE, days); //minus number would decrement the days
@@ -56,7 +61,7 @@ public class SearchRideActivity extends AppCompatActivity {
         Calendar c = Calendar.getInstance();
         System.out.println("Current time => " + c.getTime());
 
-        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         String formattedDate = df.format(c.getTime());
         try {
             myDate = df.parse(formattedDate);
@@ -66,9 +71,9 @@ public class SearchRideActivity extends AppCompatActivity {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        adapter.addFragment(FragmentDummy.getInstance(addDays(myDate, -1)), addDays(myDate, -1));
-        adapter.addFragment(FragmentDummy.getInstance(formattedDate), formattedDate);
-        adapter.addFragment(FragmentDummy.getInstance(addDays(myDate, 1)), addDays(myDate, 1));
+        adapter.addFragment(SearchRideListFragment.getInstance(Utils.addDays(myDate, -1)), Utils.addDays(myDate, -1));
+        adapter.addFragment(SearchRideListFragment.getInstance(formattedDate), formattedDate);
+        adapter.addFragment(SearchRideListFragment.getInstance(Utils.addDays(myDate, 1)), Utils.addDays(myDate, 1));
 
         viewPager.setAdapter(adapter);
     }
@@ -94,7 +99,10 @@ public class SearchRideActivity extends AppCompatActivity {
             return true;
         }//noinspection SimplifiableIfStatement
         else if (id == R.id.action_map) {
-
+            Log.e("Search", "onOptionsItemSelected: ");
+            Posi = pager.getCurrentItem();
+            Intent intent = new Intent(this, SearchLocationActivity.class).putExtra("posi", Posi);
+            startActivity(intent);
 
             return true;
         } else if (id == R.id.action_filter) {
