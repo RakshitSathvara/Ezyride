@@ -2,20 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="20dp"
     android:layout_gravity="center"
+    android:layout_margin="20dp"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="10dp">
 
     <EditText
-        android:ems="15"
+        android:id="@+id/et_corporate_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:ems="15"
         android:hint="Corporate Mail"
+        android:inputType="textEmailAddress"
         android:singleLine="true" />
 
     <Button
+        android:id="@+id/Email_Confirm_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"

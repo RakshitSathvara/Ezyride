@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<in.vaksys.ezyride.utils.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:orientation="horizontal"
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:padding="6dp"
+        app:layout_widthPercent="20%">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/mCar_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop" />
+
+    </LinearLayout>
+
+    <in.vaksys.ezyride.utils.PercentLinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="4dp"
+        android:paddingTop="2dp"
+        app:layout_widthPercent="50%">
+
+        <TextView
+            android:id="@+id/mCar_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="Marktech BMW X6"
+            android:textStyle="bold"
+            app:layout_heightPercent="33.33%" />
+
+        <TextView
+            android:id="@+id/mCar_Id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/mCar_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="GJ 01 LS 1234"
+            android:textColor="#15408F"
+            app:layout_heightPercent="33.33%" />
+
+        <TextView
+            android:id="@+id/mCar_seats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="3 Seats"
+            android:textColor="#8E8E8E"
+            app:layout_heightPercent="33.33%" />
+
+
+    </in.vaksys.ezyride.utils.PercentLinearLayout>
+
+    <in.vaksys.ezyride.utils.PercentLinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_widthPercent="30%">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_heightPercent="50%">
+
+            <ImageButton
+                android:id="@+id/btn_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@null"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_car_edit_icon" />
+
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@null"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_car_delete_icon" />
+        </LinearLayout>
+
+        <in.vaksys.ezyride.utils.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="center|bottom"
+            app:layout_heightPercent="50%">
+
+            <ImageView
+                android:id="@+id/mMusic_status"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_music_off"
+                app:layout_widthPercent="25%" />
+
+            <ImageView
+                android:id="@+id/mAc_status"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_air_conditioner_off"
+                app:layout_widthPercent="25%" />
+
+            <ImageView
+                android:id="@+id/mSeatBelt_status"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_car_seat_belt_off"
+                app:layout_widthPercent="25%" />
+
+            <ImageView
+                android:id="@+id/mAirBag_status"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_car_air_bag_off"
+                app:layout_widthPercent="25%" />
+        </in.vaksys.ezyride.utils.PercentLinearLayout>
+    </in.vaksys.ezyride.utils.PercentLinearLayout>
+</in.vaksys.ezyride.utils.PercentLinearLayout>

@@ -11,40 +11,6 @@
     <string name="title_activity_program_buttons">ProgramButtons</string>
     <string name="radial_time_picker_result_value">%1$d:%2$d</string>
 
-    <string name="icon_user">&#xf007;</string>
-    <string name="icon_add">&#xf067;</string>
-    <string name="icon_readmore">&#xf178;</string>
-    <string name="icon_answer">&#xf095;</string>
-    <string name="icon_mute">&#xf131;</string>
-
-    <string name="icon_like">&#xf087;</string>
-    <string name="icon_share">&#xf064;</string>
-    <string name="icon_follow">&#xf005;</string>
-
-    <string name="icon_android">&#xf17b;</string>
-    <string name="icon_dropbox">&#xf16b;</string>
-    <string name="icon_soundcloud">&#xf1be;</string>
-    <string name="icon_spotify">&#xf1bc;</string>
-
-    <string name="icon_vine">&#xf1ca;</string>
-    <string name="icon_twitter">&#xf099;</string>
-    <string name="icon_tumbler">&#xf173;</string>
-    <string name="icon_stackoverflow">&#xf16c;</string>
-    <string name="icon_gplus">&#xf0d5;</string>
-    <string name="icon_facebook">&#xf09a;</string>
-
-    <string name="icon_entypo_facebook">&#59140;</string>
-
-    <string name="icon_behance">&#xf1b4;</string>
-    <string name="icon_dribble">&#xf17d;</string>
-
-    <string name="icon_send">&#xf1d8;</string>
-    <string name="icon_download">&#xf0ed;</string>
-    <string name="icon_upload">&#xf0ee;</string>
-    <string name="icon_config">&#xf085;</string>
-    <string name="icon_creditcard">&#xf09d;</string>
-    <string name="ghost_button_title">Ghost Button</string>
-    <string name="icon_envelope"></string>
     <string name="edit_profile">Edit Profile</string>
     <string name="my_rides">My Rides</string>
     <string name="wallet">Wallet</string>
@@ -53,11 +19,11 @@
     <string name="how_it_works">How it works</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="messages">Messages</string>
+    <string name="my_cars">My Cars</string>
     <string name="home">Home</string>
     <string name="from">From</string>
     <string name="to">To</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_ride">Search Ride</string>
     <string name="offer_ride">Offer Ride</string>
@@ -83,6 +49,28 @@
     <string name="android_codes">Add new car</string>
     <string name="action_map">Location</string>
     <string name="action_filter">Filter</string>
+
+    <string name="err_msg_first_name">Provide First Name</string>
+    <string name="err_msg_last_name">Provide Last Name</string>
+    <string name="err_msg_birth_date">Provide BirthDate</string>
+    <string name="err_msg_email">Provide Valid Email Id</string>
+    <string name="err_msg_code">Provide Country Code</string>
+    <string name="err_msg_number">Provide Contact Number</string>
+    <string name="err_msg_valid_number">Phone Number Must Contain 10 Digits</string>
+    <string name="err_msg_password">Provide Password</string>
+    <string name="err_valid_password">Password Must Contain 6 Characters</string>
+    <string name="err_msg_price">Provide Rate Per Seat</string>
+    <string name="err_msg_seat">Provide Available Seats</string>
+    <string name="err_msg_date">Provide Date of Ride</string>
+    <string name="err_msg_time">Provide Time of Ride</string>
+    <string name="err_msg_car_spinner">Provide Car</string>
+    <string name="err_msg_car_number">Provide Car Number</string>
+    <string name="error_view_add_car">Add Car Now</string>
+    <string name="error_title_ops">Oops …</string>
+    <string name="error_subtitle_no_car_found">Seems like you haven\'t any Car yet.</string>
+    <string name="error_subtitle_no_connection">Seems Like you don\'t have an internet Connection</string>
+    <string name="error_subtitle_no_ride_found">No ride Found in your Area</string>
+    <string name="error_view_find_ride">Find New Ride</string>
 
 
 </resources>

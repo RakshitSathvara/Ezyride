@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -17,7 +18,6 @@
             android:layout_height="match_parent"
             android:background="#F2F2F2"
             android:orientation="vertical">
-
 
             <LinearLayout
                 android:id="@+id/nav_header_container"
@@ -38,6 +38,7 @@
                         android:orientation="vertical">
 
                         <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/RiderImage"
                             android:layout_width="70dp"
                             android:layout_height="70dp"
                             android:layout_gravity="center_vertical"
@@ -66,21 +67,43 @@
                         android:padding="10dp">
 
                         <TextView
+                            android:id="@+id/RiderName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Dhaval Thakor"
                             android:textColor="#FFFFFF"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:text="Age : 32, Male"
-                            android:textColor="#FFFFFF" />
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/RiderAge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Age : 32"
+                                android:textColor="#FFFFFF" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text=" , "
+                                android:textColor="#FFFFFF" />
+
+                            <TextView
+                                android:id="@+id/RiderGender"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Male"
+                                android:textColor="#FFFFFF" />
+                        </LinearLayout>
+
                     </LinearLayout>
-
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -146,7 +169,8 @@
                     android:textColor="#000000"
                     android:textSize="18sp" />
 
-                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                <android.support.percent.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/ThreeSeatFrame"
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
                     android:layout_marginTop="20dp">
@@ -154,43 +178,58 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/car_model" />
+                        android:src="@drawable/car_3" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/wheel"
+                        app:layout_heightPercent="17%"
+                        app:layout_marginLeftPercent="40%"
+                        app:layout_marginTopPercent="25%"
+                        app:layout_widthPercent="7%" />
 
                     <ToggleButton
                         android:id="@+id/seatOne"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginLeft="180dp"
-                        android:layout_marginTop="35dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/check"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:textOff=""
-                        android:textOn="" />
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="40%"
+                        app:layout_marginTopPercent="60%"
+                        app:layout_widthPercent="6%" />
 
                     <ToggleButton
                         android:id="@+id/seatTwo"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginLeft="180dp"
-                        android:layout_marginTop="58dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/check"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:textOff=""
-                        android:textOn="" />
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="55%"
+                        app:layout_marginTopPercent="60%"
+                        app:layout_widthPercent="6%" />
 
                     <ToggleButton
                         android:id="@+id/seatThree"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginLeft="150dp"
-                        android:layout_marginTop="58dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/check"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:textOff=""
-                        android:textOn="" />
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="55%"
+                        app:layout_marginTopPercent="25%"
+                        app:layout_widthPercent="6%" />
 
                     <!--  <ImageView
                           android:layout_width="40dp"
@@ -200,7 +239,107 @@
                           android:rotation="90"
                           android:src="@drawable/steering" />-->
 
-                </FrameLayout>
+                </android.support.percent.PercentFrameLayout>
+
+                <android.support.percent.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/FiveSeatFrame"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginTop="20dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/car_5" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/wheel"
+                        app:layout_heightPercent="17%"
+                        app:layout_marginLeftPercent="30%"
+                        app:layout_marginTopPercent="25%"
+                        app:layout_widthPercent="7%" />
+
+                    <ToggleButton
+                        android:id="@+id/FiveseatOne"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/check"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:textOff=""
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="30%"
+                        app:layout_marginTopPercent="60%"
+                        app:layout_widthPercent="6%" />
+
+                    <ToggleButton
+                        android:id="@+id/FiveseatTwo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/check"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:textOff=""
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="45%"
+                        app:layout_marginTopPercent="60%"
+                        app:layout_widthPercent="6%" />
+
+                    <ToggleButton
+                        android:id="@+id/FiveseatThree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/check"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:textOff=""
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="45%"
+                        app:layout_marginTopPercent="25%"
+                        app:layout_widthPercent="6%" />
+
+                    <ToggleButton
+                        android:id="@+id/FiveseatFour"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/check"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:textOff=""
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="60%"
+                        app:layout_marginTopPercent="60%"
+                        app:layout_widthPercent="6%" />
+
+                    <ToggleButton
+                        android:id="@+id/FiveseatFive"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/check"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:textOff=""
+                        android:textOn=""
+                        app:layout_heightPercent="15%"
+                        app:layout_marginLeftPercent="60%"
+                        app:layout_marginTopPercent="25%"
+                        app:layout_widthPercent="6%" />
+
+                    <!--  <ImageView
+                          android:layout_width="40dp"
+                          android:layout_height="40dp"
+                          android:layout_marginLeft="140dp"
+                          android:layout_marginTop="200dp"
+                          android:rotation="90"
+                          android:src="@drawable/steering" />-->
+
+                </android.support.percent.PercentFrameLayout>
 
 
                 <TextView
@@ -208,7 +347,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:gravity="center"
-                    android:text="Pick your sit"
+                    android:text="Pick your seat/(s)"
                     android:textSize="16sp" />
 
                 <TextView
@@ -222,38 +361,37 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="53dp"
-                        android:layout_height="53dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/tea" />
-
-                    <ImageView
+                        android:id="@+id/bMusic_status"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:src="@drawable/music" />
+                        android:src="@drawable/ic_music_on" />
 
                     <ImageView
+                        android:id="@+id/bAc_status"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:src="@drawable/sound" />
+                        android:src="@drawable/ic_air_conditioner_on" />
 
                     <ImageView
+                        android:id="@+id/bSeatBelt_status"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:src="@drawable/note" />
+                        android:src="@drawable/ic_car_seat_belt_off" />
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
+                        android:id="@+id/bAirBag_status"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:src="@drawable/nav" />
+                        android:src="@drawable/ic_car_air_bag_off" />
+
 
                 </LinearLayout>
 
@@ -338,6 +476,7 @@
                 </LinearLayout>
 
                 <Button
+                    android:id="@+id/BtnPayNow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"

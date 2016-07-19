@@ -19,16 +19,18 @@
             android:layout_margin="16dp"
             android:orientation="vertical">
 
-
-            <FrameLayout
+            <in.vaksys.ezyride.utils.PercentLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/GetFromLocation"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:layout_widthPercent="90%">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -37,219 +39,194 @@
                         android:textColor="#CCCCCC" />
 
                     <TextView
+                        android:id="@+id/FromMainName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hyderabad"
+                        android:text="Hyderabad "
                         android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
+                        android:id="@+id/FromSubName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Madhapur cyber tower, Hitechcity"
-                        android:textColor="#CCC" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="#CCC" />
-
+                        android:text="Madhapur cyber tower, Hitechcitysad"
+                        android:textColor="#898989" />
 
                 </LinearLayout>
 
                 <ImageView
+                    android:id="@+id/GetCurrentLocation"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|bottom"
-                    android:layout_marginRight="20dp"
-                    android:src="@drawable/ic_action_navigation" />
-
-            </FrameLayout>
-
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center_horizontal"
+                    android:layout_gravity="bottom"
+                    android:scaleType="fitEnd"
+                    android:src="@drawable/ic_action_navigation"
+                    app:layout_widthPercent="10%" />
 
-                    android:orientation="vertical">
+            </in.vaksys.ezyride.utils.PercentLinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="TO"
-                        android:textColor="#CCC" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Seconderabad"
-                        android:textColor="#000000"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Seconderabad railway stasion, Secondrabad"
-                        android:textColor="#CCC" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="#ccc" />
-
-                </LinearLayout>
-
-            </FrameLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#CCC" />
 
             <LinearLayout
+                android:id="@+id/GetToLocation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
 
-                <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="DATE">
+                    android:text="TO"
+                    android:textColor="#CCC" />
 
-                    <EditText
-                        android:id="@+id/dateSupport"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/ic_action_calendar" />
-                </android.support.design.widget.TextInputLayout>
-
-                <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/ToMainName"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="TIME">
+                    android:text="Seconderabad"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
 
-                    <EditText
-                        android:id="@+id/timeSupport"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/ic_action_time" />
-                </android.support.design.widget.TextInputLayout>
+                <TextView
+                    android:id="@+id/ToSubName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seconderabad railway stasion, Secondrabad"
+                    android:textColor="#898989" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="#ccc" />
 
             </LinearLayout>
 
-            <ScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    android:orientation="vertical">
-
-                    <in.vaksys.ezyride.adapters.ExpandableView
-                        android:id="@+id/activity_main_top_expandable_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/ractangle_border" />
-
-                    <in.vaksys.ezyride.adapters.ExpandableView
-                        android:id="@+id/activity_main_middle_expandable_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/ractangle_border" />
-
-                </LinearLayout>
-            </ScrollView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="18dp"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    android:id="@+id/dateSupport"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_action_calendar"
+                    android:drawablePadding="5dp"
+                    android:gravity="center_vertical"
+                    android:lines="1"
+                    android:text="Date"
+                    android:textSize="20sp" />
+
+
+                <TextView
+                    android:id="@+id/timeSupport"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_action_time"
+                    android:drawablePadding="5dp"
+                    android:gravity="center_vertical"
+                    android:lines="1"
+                    android:text="Time"
+                    android:textSize="20sp" />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select Car" />
+
+                <Spinner
+                    android:id="@+id/spinner_car_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:dropDownVerticalOffset="40dp"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/et_price_input"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_weight="1"
-                        android:text="PRICE/SEAT" />
+                        android:hint="PRICE/SEAT">
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="20dp"
+                        <EditText
+                            android:id="@+id/et_Price"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/ic_action_rupee" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="850"
+                            android:drawableLeft="@drawable/ic_action_rupee"
+                            android:hint="PRICE/SEAT"
+                            android:inputType="number"
                             android:textColor="#000000"
                             android:textSize="16sp" />
+                    </android.support.design.widget.TextInputLayout>
 
-                    </LinearLayout>
-
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="5dp"
-                        android:background="#CCC" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_weight="1"
-                        android:text="SEAT AVAILABLE" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_weight="1"
-                        android:text="3"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-
-                    <View
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/et_seat_input"
                         android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:layout_marginTop="5dp"
-                        android:background="#CCC" />
-                </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:hint="Seat Available">
 
+                        <EditText
+                            android:id="@+id/et_seat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableLeft="@drawable/ic_action_seat"
+                            android:hint="Seat Available"
+                            android:inputType="number"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
+                    </android.support.design.widget.TextInputLayout>
+
+
+                </LinearLayout>
 
             </LinearLayout>
 
             <CheckBox
+                android:id="@+id/ladies_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
@@ -257,19 +234,19 @@
 
 
             <Button
+                android:id="@+id/OfferNowBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
                 android:layout_marginLeft="40dp"
                 android:layout_marginRight="40dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/btn_facebook"
                 android:gravity="center"
                 android:text="Offer Now"
-                android:layout_marginBottom="30dp"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
-
 
         </LinearLayout>
 

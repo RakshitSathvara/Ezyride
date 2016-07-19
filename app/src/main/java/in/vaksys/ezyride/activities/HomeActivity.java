@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -43,11 +44,15 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import in.vaksys.ezyride.MyApplication;
 import in.vaksys.ezyride.R;
-import in.vaksys.ezyride.fragments.BlankFragment;
+import in.vaksys.ezyride.extras.Utils;
 import in.vaksys.ezyride.fragments.NavigationDrawerFragment;
-import in.vaksys.ezyride.utils.MyApplication;
+import in.vaksys.ezyride.fragments.RegisterDialog;
+import in.vaksys.ezyride.fragments.SearchRideFragment;
+import in.vaksys.ezyride.utils.AppConfig;
 import in.vaksys.ezyride.utils.NavigationDrawerCallbacks;
+import in.vaksys.ezyride.utils.PreferenceHelper;
 
 public class HomeActivity extends AppCompatActivity implements NavigationDrawerCallbacks {
 
@@ -78,6 +83,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
     @Bind(R.id.btnLinkToRegisterScreen)
     Button btnLinkToRegisterScreen;
+
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -88,6 +94,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
     int tempflag = 0;
     Dialog dialog;
 
+    PreferenceHelper helper;
+    // TODO: 23-06-2016 Google Place API for Release version is left
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,11 +104,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
         AppEventsLogger.activateApp(MyApplication.getInstance());
         setContentView(R.layout.activity_home);
 //        ButterKnife.bind(this);
-            forFacebook();
+        forFacebook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
         callbackManager = CallbackManager.Factory.create();
+        helper = new PreferenceHelper(this, AppConfig.PREF_USER_FILE_NAME);
 
         tempflag++;
         Log.e(TAG, "onCreate: " + tempflag);
@@ -110,12 +120,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
         // populate the navigation drawer
         mNavigationDrawerFragment.setUserData("Dhaval Thakor", "dhaval@vakratunda.com",
                 BitmapFactory.decodeResource(getResources(), R.drawable.user));
-
-        fm = getSupportFragmentManager();
-        ft = fm.beginTransaction();
-        ft.add(R.id.container, new BlankFragment());
-        ft.commit();
-
+        if (tempflag > 2) {
+            fm = getSupportFragmentManager();
+            ft = fm.beginTransaction();
+            ft.add(R.id.container, new SearchRideFragment());
+            ft.commit();
+        }
         dialog = new Dialog(HomeActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         //setting custom layout to dialog
@@ -161,15 +171,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
                                                 Log.d("LoginActivity", fname + femail + fgender + fbirthday);
 
-                                                /*SharedPreferences sharedPreferences = getSharedPreferences("ProfileDetail", Context.MODE_PRIVATE);
-                                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                editor.putString("FirstName", fname);
-                                                editor.putString("Emaiid", femail);
-                                                editor.putString("Birthdate", fbirthday);
-                                                editor.putInt("entryTime", 1);
-                                                editor.putBoolean("loggin", true);
-                                                editor.apply();*/
-//                                                startActivity(new Intent(SignupActivity.this, EditProfileActivity.class));
+                                                helper.initPref();
+                                                helper.SaveStringPref(AppConfig.PREF_USER_NAME, fname);
+                                                helper.SaveStringPref(AppConfig.PREF_USER_MAIL_ID, femail);
+                                                helper.SaveStringPref(AppConfig.PREF_USER_BIRTHDATE, fbirthday);
+                                                helper.SaveStringPref(AppConfig.PREF_USER_PROFILR_PIC, profile_pic.toString());
+                                                helper.SaveIntPref(AppConfig.PREF_USER_ENTRY_TIME, 1);
+                                                helper.SaveBooleanPref(AppConfig.PREF_USER_LOGIN_STATUS, true);
+                                                helper.ApplyPref();
+                                                Toast.makeText(HomeActivity.this, "Success", Toast.LENGTH_SHORT).show();
+//                                                startActivity(new Intent(HomeActivity.this, EditProfileActivity.class));
                                             } catch (MalformedURLException e) {
                                                 e.printStackTrace();
                                             }
@@ -228,14 +239,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
                     Log.e(TAG, "onNavigationDrawerItemSelected 0 : " + tempflag);
                     fm = getSupportFragmentManager();
                     ft = fm.beginTransaction();
-                    ft.add(R.id.container, new BlankFragment());
+                    ft.add(R.id.container, new SearchRideFragment());
                     ft.commit();
                     tempflag++;
                     break;
                 } else if (tempflag > 0) {
                     Log.e(TAG, "onNavigationDrawerItemSelected 1 : " + tempflag);
                     ft = fm.beginTransaction();
-                    ft.replace(R.id.container, new BlankFragment());
+                    ft.replace(R.id.container, new SearchRideFragment());
                     ft.commit();
                     break;
                 }
@@ -273,12 +284,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
             case 3:
                 startActivity(new Intent(HomeActivity.this, CarDetailsActivity.class));
                 break;
-          /*   case 4:
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-                break;
-            case 5:
-                startActivity(new Intent(MainActivity.this, FreebiesActivity.class));
-                break;*/
             case 4:
                 Intent profileIntent = new Intent(HomeActivity.this, EditProfileActivity.class);
                 startActivity(profileIntent);
@@ -295,7 +300,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
                 Intent map = new Intent(HomeActivity.this, SearchLocationActivity.class);
                 startActivity(map);
                 break;
-
+            case 8:
+                android.app.FragmentManager fm11 = getFragmentManager();
+                RegisterDialog registerDialog = new RegisterDialog();
+                registerDialog.show(fm11, "tag");
+                break;
+            case 9:
+                Intent mycars = new Intent(HomeActivity.this, MyCarActivity.class);
+                startActivity(mycars);
+                break;
             default:
                 break;
         }
@@ -309,7 +322,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
     }
 
     public void forFacebook() {
-
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
                     getPackageName(), PackageManager.GET_SIGNATURES);
@@ -325,10 +337,28 @@ public class HomeActivity extends AppCompatActivity implements NavigationDrawerC
 
         }
     }
+
+    boolean doubleBackToExitPressedOnce = false;
+
     @Override
     public void onBackPressed() {
-        if (mNavigationDrawerFragment.isDrawerOpen())
+        if (mNavigationDrawerFragment.isDrawerOpen()) {
             mNavigationDrawerFragment.closeDrawer();
+            return;
+        }
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+        this.doubleBackToExitPressedOnce = true;
+        new Utils(this).ExitSnackBar();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
     }
 
     @Override
